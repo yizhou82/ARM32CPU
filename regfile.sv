@@ -1,4 +1,4 @@
-module regfile(input [31:0] w_data, input [5:0] w_addr, input w_en, input [5:0] r_addr, input clk, output [31:0] r_data);
+module regfile(input [31:0] w_data, input [3:0] w_addr, input w_en, input [3:0] r_addr, input clk, output [31:0] r_data);
 
     /*
     *** About ***
@@ -25,23 +25,21 @@ module regfile(input [31:0] w_data, input [5:0] w_addr, input w_en, input [5:0] 
     R13 - Stack Pointer (SP)
     R14 - Link Register (LR)
     R15 - Program Counter (PC)
+
+    --- Removed to be direct output of datapath ---
     R16 - Status Register (SR)
     */
 
-    reg [31:0] regsiteres[0:17];
+    reg [31:0] regsiteres[0:15];
 
     // read is combinational
     always_comb begin
-        if (r_addr < 5'd17) begin
-            r_data = regsiteres[r_addr];
-        end else begin
-            r_data = 0;
-        end
+        r_data = regsiteres[r_addr];
     end
 
     // write is sequential
     always_ff @(posedge clk) begin
-        if (w_en && w_addr < 5'd17) begin
+        if (w_en == 1'b1) begin
             regsiteres[w_addr] = w_data;
         end
     end
