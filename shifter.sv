@@ -16,7 +16,7 @@ module shifter(input [31:0] shift_in, input [1:0] shift_op, output reg [31:0] sh
         out1 <= shift_in >> 1;
       end
       2'b11: begin
-        out1 <= {shift_in[15:15], shift_in[15:1]};
+        out1 <= {shift_in[31:31], shift_in[31:1]};
       end
       default:;
     endcase
