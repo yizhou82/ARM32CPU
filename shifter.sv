@@ -1,7 +1,7 @@
 module shifter(input [31:0] shift_in, input [1:0] shift_op, output reg [31:0] shift_out);
   
   reg[31:0] out1;
-
+  
   assign shift_out = out1;
 
   always_comb begin

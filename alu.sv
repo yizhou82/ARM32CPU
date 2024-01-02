@@ -11,6 +11,7 @@ module ALU(input [31:0] val_A, input [31:0] val_B, input [2:0] ALU_op, output [3
   assign flags = out2;
 
   always_comb begin
+    out2 = 32'd0;
     case (ALU_op)
       3'b000: begin // Addition
         out1 = $signed(val_A) + $signed(val_B);
@@ -18,7 +19,7 @@ module ALU(input [31:0] val_A, input [31:0] val_B, input [2:0] ALU_op, output [3
       end
       3'b001: begin // Subtraction
         out1 = $signed(val_A) - $signed(val_B);
-        out2[28] = ((val_A[31] & val_B[31] & ~out1[31]) | (~val_A[31] & ~val_B[31] & out1[31]));
+        out2[28] = ((val_A[31] ^ val_B[31] & out1[31]) != val_A[31]);
       end
       3'b010: begin // AND
         out1 = val_A & val_B;
@@ -65,10 +66,10 @@ module ALU(input [31:0] val_A, input [31:0] val_B, input [2:0] ALU_op, output [3
     out2[30] = (out1 == 0) ? 1 : 0;
 
     // Greater than or Equal flags
-    out2[16] = val_A[7:0] >= val_B[7:0];   // Lower 8 bits
-    out2[17] = val_A[15:8] >= val_B[15:8]; // Next 8 bits
-    out2[18] = val_A[23:16] >= val_B[23:16]; // Next 8 bits
-    out2[19] = val_A[31:24] >= val_B[31:24]; // Upper 8 bits
+    // out2[16] = val_A[7:0] >= val_B[7:0];   // Lower 8 bits
+    // out2[17] = val_A[15:8] >= val_B[15:8]; // Next 8 bits
+    // out2[18] = val_A[23:16] >= val_B[23:16]; // Next 8 bits
+    // out2[19] = val_A[31:24] >= val_B[31:24]; // Upper 8 bits
 
   end
 
