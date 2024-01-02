@@ -33,9 +33,7 @@ module regfile(input [31:0] w_data, input [3:0] w_addr, input w_en, input [3:0] 
     reg [31:0] regsiteres[0:15];
 
     // read is combinational
-    always_comb begin
-        r_data = regsiteres[r_addr];
-    end
+    assign r_data = regsiteres[r_addr];
 
     // write is sequential
     always_ff @(posedge clk) begin
