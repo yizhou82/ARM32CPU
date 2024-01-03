@@ -1,4 +1,6 @@
-module regfile(input [31:0] w_data, input [3:0] w_addr, input w_en, input [3:0] r_addr, input clk, output [31:0] r_data);
+module regfile(input [31:0] w_data, input [3:0] w_addr, input w_en, input clk,
+            input [3:0] A_addr, input [3:0] B_addr, input [3:0] shift_addr,
+            output [31:0] A_data, output [31:0] B_data, output [31:0] shift_data);
 
     /*
     *** About ***
@@ -33,7 +35,9 @@ module regfile(input [31:0] w_data, input [3:0] w_addr, input w_en, input [3:0] 
     reg [31:0] regsiteres[0:15];
 
     // read is combinational
-    assign r_data = regsiteres[r_addr];
+    assign A_data = regsiteres[A_addr];
+    assign B_data = regsiteres[B_addr];
+    assign shift_data = regsiteres[shift_addr];
 
     // write is sequential
     always_ff @(posedge clk) begin
