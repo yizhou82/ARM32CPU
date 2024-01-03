@@ -1,13 +1,11 @@
 module idecoder(
-    input [31:0] ir,        // 32-bit ARM instruction
+    input [31:0] instr,        // 32-bit ARM instruction
     output [3:0] cond,      // Condition code (0000 = EQ, 0001 = NE, rest irrelevant)
-    output [1:0] types,      // Instruction type (00 = data processing, 01 = load/store, 10 = branch, 11 = other)
-    output [3:0] opcode,    // Opcode for the instruction
+    output [5:0] opcode,    // Opcode for the instruction
     output [3:0] rn,        // Rn
     output [3:0] rd,        // Rd (destination)
     output [3:0] rs,        // Rs
     output [3:0] rm,        // Rm 
-    output [3:0] rt,        // Rt (used in load/store)
     output [11:0] operand2, // Immediate value or second operand
     output [1:0] shift_op,  // Shift operation (00 = logical left, 01 = logical right, 10 = arithmetic right, 11 = rotate right)
     output [23:0] address,  // Address for branching
@@ -30,12 +28,16 @@ assign operand2 = operand2_reg;
 assign shift_op = shift_op_reg;
 assign address = address_reg;
 
-assign bit25 = ir[25];
-assign bit4 = ir[4];
-assign bit20 = ir[20];
-assign bit25 = ir[25];
+assign bit25 = instr[25];
+assign bit4 = instr[4];
+assign bit20 = instr[20];
+assign bit25 = instr[25];
 
-assign types = ir[27:26];
+assign types = instr[27:26];
+
+always_comb begin
+    case (instr[])
+end
 
 //ALL OLD CHANGE STUFF
 
