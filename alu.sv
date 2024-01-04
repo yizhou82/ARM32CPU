@@ -39,6 +39,9 @@ module ALU(input [31:0] val_A, input [31:0] val_B, input [2:0] ALU_op, output [3
       3'b110: begin // NOT
         out1 = ~val_B;
       end
+      3'b111: begin // XOR
+        out1 = val_A ^ val_B;
+      end
       default: begin
         out1 = val_A;
         out2 = 0;
