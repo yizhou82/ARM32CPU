@@ -1,44 +1,78 @@
 module idecoder(
-    input [31:0] instr,        // 32-bit ARM instruction
-    output [3:0] cond,      // Condition code (0000 = EQ, 0001 = NE, rest irrelevant)
-    output [5:0] opcode,    // Opcode for the instruction
+    input [31:0] instr,     // 32-bit ARM instruction
+    output [3:0] cond,      // Condition code
+    output [6:0] opcode,    // Opcode for the instruction
+    output en_status,       // Enable status register
     output [3:0] rn,        // Rn
     output [3:0] rd,        // Rd (destination)
     output [3:0] rs,        // Rs
     output [3:0] rm,        // Rm 
-    output [11:0] operand2, // Immediate value or second operand
-    output [1:0] shift_op,  // Shift operation (00 = logical left, 01 = logical right, 10 = arithmetic right, 11 = rotate right)
-    output [23:0] address,  // Address for branching
+    output [1:0] shift_op,  // Shift operation
+    output [4:0] imm5,      // Immediate value
+    output [11:0] imm12,    // Immediate value or second operand
+    output [23:0] imm24    // Address for branching
 );
 
-reg [3:0] cond_reg, opcode_reg, rn_reg, rd_reg, rs_reg, rm_reg, rt_reg;
-reg [1:0] type_reg, shift_op_reg;
-reg [11:0] operand2_reg;
-reg [23:0] address_reg;
+    reg en_status_reg;
+    reg [1:0] shift_op_reg;
+    reg [3:0] cond_reg, rn_reg, rd_reg, rs_reg, rm_reg;
+    reg [6:0] opcode_reg;
+    reg [4:0] imm5_reg;
+    reg [11:0] imm12_reg;
+    reg [23:0] imm24_reg;
 
-assign cond = cond_reg;
-assign types = types_reg;
-assign opcode = opcode_reg;
-assign rn = rn_reg;
-assign rd = rd_reg;
-assign rs = rs_reg;
-assign rm = rm_reg;
-assign rt = rt_reg;
-assign operand2 = operand2_reg;
-assign shift_op = shift_op_reg;
-assign address = address_reg;
+    assign en_status = en_status_reg;
+    assign shift_op = shift_op_reg;
+    assign cond = cond_reg;
+    assign rn = rn_reg;
+    assign rd = rd_reg;
+    assign rs = rs_reg;
+    assign rm = rm_reg;
+    assign opcode = opcode_reg;
+    assign imm5 = imm5_reg;
+    assign imm12 = imm12_reg;
+    assign imm24 = imm24_reg;
 
-assign bit25 = instr[25];
-assign bit4 = instr[4];
-assign bit20 = instr[20];
-assign bit25 = instr[25];
+    assign type_I = instr[25];
+    assign type_RS = instr[4];
 
-assign types = instr[27:26];
+    always_comb begin
 
-always_comb begin
-    case (instr[])
-end
+        cond_reg = instr[31:28];
+        rn_reg = instr[19:16];
+        rd_reg = instr[15:12];
+        rs_reg = instr[11:8];
+        rm_reg = instr[3:0];
+        shift_op_reg = instr[7:6];
+        imm5_reg = instr[4:0];
+        imm12_reg = instr[11:0];
+        imm24_reg = instr[23:0];
+        en_status_reg = instr[20];
 
-//ALL OLD CHANGE STUFF
+        case (instr[27:26])
+            2'b00: begin // Data
+                if(instr[27:21] == 7'b0011001 || instr[27:21] == 7'b0001000) begin // NOP and HALT
+                    opcode_reg = {3'b000, instr[24:21]};
+                end else begin
+                    if(type_I) begin
+                        opcode_reg = {3'b001, instr[24:21]}; // Immediate
+                    end else if(type_RS) begin
+                        opcode_reg = {3'b011, instr[24:21]}; // Register Shifted
+                    end else begin
+                        opcode_reg = {3'b010, instr[24:21]}; // Register
+                    end 
+                end
+            end
+            2'b01: begin // Load/Store
+                opcode_reg = {3'b101, instr[24:21]};
+            end
+            2'b10: begin // Branch
+                opcode_reg = {4'b1000, instr[23:21]};
+            end
+            default: begin // Undefined
+                opcode_reg = 7'b1010000;
+            end
+        endcase
+    end
 
 endmodule: idecoder
