@@ -1,7 +1,7 @@
 module datapath(input clk, input [31:0] datapath_in, input wb_sel,
                 input [3:0] w_addr, input w_en, input [3:0] A_addr, input [3:0] B_addr, input [3:0] shift_addr, 
                 input en_A, input en_B, input en_S, input [1:0] shift_op, input [31:0] shift_imme, input sel_shift, input sel_A, input sel_B,
-                input [31:0] imme_data, input [2:0] ALU_op, input en_C, input en_status,
+                input [31:0] imme_data, input [2:0] ALU_op, input en_status,
                 output [31:0] datapath_out, output [31:0] status_out);
   
     // --- internal wires ---
@@ -13,11 +13,11 @@ module datapath(input clk, input [31:0] datapath_in, input wb_sel,
     wire [31:0] val_A, val_B, ALU_out, shift_amt, status_in;
 
     // --- internal regs ---
-    reg [31:0] A_reg, B_reg, C_reg, S_reg, status_reg;
+    reg [31:0] A_reg, B_reg, S_reg, status_reg;
 
     // internal connections
     assign status_out = status_reg;
-    assign datapath_out = C_reg;
+    assign datapath_out = ALU_out;
 
     //internal modules
     regfile regfile(.w_data(w_data), .w_addr(w_addr), .w_en(w_en), .clk(clk), .A_addr(A_addr), .B_addr(B_addr),
@@ -26,7 +26,7 @@ module datapath(input clk, input [31:0] datapath_in, input wb_sel,
     ALU alu(.val_A(val_A), .val_B(val_B), .ALU_op(ALU_op), .ALU_out(ALU_out), .flags(status_in));
 
     //muxes
-    assign w_data = (wb_sel == 1'b1) ? datapath_in : C_reg;
+    assign w_data = (wb_sel == 1'b1) ? datapath_in : ALU_out;
     assign val_A = (sel_A == 1'b1) ? 31'b0 : A_reg;
     assign val_B = (sel_B == 1'b1) ? imme_data : shift_out; 
     assign shift_amt = (sel_shift == 1'b0) ? shift_imme : shift_data;
@@ -49,13 +49,6 @@ module datapath(input clk, input [31:0] datapath_in, input wb_sel,
     always_ff @(posedge clk) begin
         if (en_S == 1'b1) begin
             S_reg <= shift_amt;
-        end
-    end
-
-    //register C
-    always_ff @(posedge clk) begin
-        if (en_C == 1'b1) begin
-            C_reg <= ALU_out;
         end
     end
 

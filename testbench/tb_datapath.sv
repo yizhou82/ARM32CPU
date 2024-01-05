@@ -6,7 +6,7 @@ module tb_datapath(output err);
   reg wb_sel;
   reg [3:0] w_addr, A_addr, B_addr, shift_addr;
   reg w_en, clk;
-  reg en_A, en_B, en_C, en_S, en_status;
+  reg en_A, en_B, en_S, en_status;
   reg [1:0] shift_op;
   reg sel_A, sel_B, sel_shift;
   reg [2:0] ALU_op;
@@ -45,7 +45,6 @@ module tb_datapath(output err);
       .shift_addr(shift_addr),
       .en_A(en_A),
       .en_B(en_B),
-      .en_C(en_C),
       .en_S(en_S),
       .sel_A(sel_A),
       .sel_B(sel_B),
@@ -96,11 +95,9 @@ module tb_datapath(output err);
     sel_A = 1'b0;
     sel_B = 1'b0;
     ALU_op = 3'b000;
-    en_C = 1'b1;
-    clkR;
-    en_C = 1'b0;
-
+    #5;
     check(5, datapath_out, 0, 1);
+    clkR;
     check(32'd0, status_out, 0, 2);
 
     // Test 3 & 4 sel_A and sel_B == 1
@@ -108,11 +105,9 @@ module tb_datapath(output err);
     sel_B = 1'b1;
     imme_data = 32'd12;
     ALU_op = 3'b001;
-    en_C = 1'b1;
-    clkR;
-    en_C = 1'b0;
-
+    #5;
     check(-32'sd12, datapath_out, 0, 3);
+    clkR;
     check(32'b10000000000000000000000000000000, status_out, 0, 4);
 
     //  Test 5 write back into reg 0
@@ -133,11 +128,9 @@ module tb_datapath(output err);
     sel_B = 1'b0;
     shift_op = 2'b00;
     ALU_op = 3'b001;
-    en_C = 1'b1;
-    clkR;
-    en_C = 1'b0;
-
+    #5;
     check(32'd12, datapath_out, 0, 5);
+    clkR;
     check(32'b00000000000000000000000000000000, status_out, 0, 6);
 
 
