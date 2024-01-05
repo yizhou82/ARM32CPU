@@ -1,11 +1,13 @@
 module controller(input clk, input rst_n,
-                  input [6:0] opcode, input [1:0] shift_op,
-                  input [31:0] status_reg,
-                  output waiting,
-                  output [1:0] wb_sel, output sel_A, output sel_B, output sel_shift,
-                  output w_en, output en_A, output en_B, output en_C, output en_status, output en_S,
-                  output load_ir, output load_pc, output clear_pc, //not yet used
-                  output load_addr, output sel_addr, output ram_w_en);
+                input [6:0] opcode, input [1:0] shift_op,
+                input [31:0] status_reg, input en_status , input [3:0] cond
+                input [3:0] rn, input [3:0] rd, input [3:0] rm, input [3:0] rs,
+                input [31:0] imme_data, input [31:0] shift_imme,
+                output waiting,
+                output [1:0] wb_sel, output sel_A, output sel_B, output sel_shift,
+                output w_en, output en_A, output en_B, output en_C, output en_S,
+                output load_ir, output load_pc, output clear_pc, //not yet used
+                output load_addr, output sel_addr, output ram_w_en);
 
     /*
     Regular Instructions (No-type)
@@ -111,15 +113,14 @@ module controller(input clk, input rst_n,
     localparam [2:0] reset = 3'd1;
     localparam [2:0] fetch = 3'd2;
     localparam [2:0] load_A_B_shift = 3'd3;
-    localparam [2:0] load_C_status = 3'd4;
-    localparam [2:0] update_regs = 3'd5;
-    localparam [2:0] finish = 3'd6; //temp state
+    localparam [2:0] update_regs_status = 3'd4;
+    localparam [2:0] finish = 3'd5; //temp state
 
-    // localparam for instructions
+    // localparam for specific instructions
     localparam [6:0] NOP = 7'b0000000;
     localparam [6:0] HLT = 7'b0000001;
-    localparam [6:0] MOV_I = 7'b0011000;
-    localparam [2:0] CMP = 3'b010; //some overlap with none but should be fine
+    localparam [6:0] MOV_I = 7'b0001000;
+    localparam [2:0] CMP = 4'b0010; //some overlap with none but should be fine
 
     // localparam for ALU_op
     localparam [2:0] ADD = 3'b000;
@@ -138,7 +139,7 @@ module controller(input clk, input rst_n,
             case (state)
                 reset: begin
                     if (opcode == MOV_I) begin
-                        state <= update_regs;
+                        state <= update_regs_status;
                     end else begin
                         state <= fetch;
                     end
@@ -147,16 +148,9 @@ module controller(input clk, input rst_n,
                     state <= load_A_B_shift;
                 end
                 load_A_B_shift: begin
-                    state <= load_C_status;
+                    state <= update_regs_status;
                 end
-                load_C_status: begin
-                    if (opcode[2:0] == CMP) begin
-                        state <= fetch;
-                    end else begin
-                        state <= update_regs;
-                    end
-                end
-                update_regs: begin
+                update_regs_status: begin
                     state <= finish;
                 end
                 finish : begin
@@ -192,6 +186,9 @@ module controller(input clk, input rst_n,
                 - A_addr
                 - B_addr
                 - shift_addr
+                - sel_A
+                - sel_B
+                - ALU_op
                 */
                 //normal instructions
                 if (opcode[6] == 0)  begin
@@ -212,23 +209,7 @@ module controller(input clk, input rst_n,
                         en_S = 1'b1;
                         sel_shift = opcode[5];
                     end
-                end
-            end
-            load_C_status: begin
-                waiting = 1
 
-                /*
-                take care of:
-                - sel_A
-                - sel_B
-                - ALU_op
-                - en_C
-                - en_status
-                */
-
-                //normal instructions
-                if (opcode[6] == 0)  begin
-                    
                     //sel_A
                     if (opcode[3] == 1'b0) begin
                         sel_A = 1'b1;
@@ -249,16 +230,9 @@ module controller(input clk, input rst_n,
                         3'b111: ALU_op = XOR;
                         default: ALU_op = ADD;
                     endcase
-
-                    //en_C
-                    if (opcode[2:0] != CMP) begin
-                        en_C = 1'b1;
-                    end
-
-                    //en_status PASSED IN BY DECODER
                 end
             end
-            update_regs: begin
+            update_regs_status: begin
                 waiting = 1'b1;
                 /*
                 take care of:
@@ -268,14 +242,17 @@ module controller(input clk, input rst_n,
                 */
                 //normal instructions
                 if (opcode[6] == 0)  begin
-                    //wb_sel
-                    wb_sel = 1'b1;
 
-                    //w_en
-                    w_en = 1'b1;
+                    if (opcode[3:0] != CMP) begin
+                        //wb_sel
+                        wb_sel = 1'b1;
 
-                    //w_addr
-                    w_addr = rd;
+                        //w_en
+                        w_en = 1'b1;
+
+                        //w_addr
+                        w_addr = rd;
+                    end
                 end
             end
         endcase
