@@ -137,10 +137,11 @@ module controller(input clk, input rst_n,
         end else begin
             case (state)
                 reset: begin
-                    casex (opcode)
-                        MOV_I: state <= update_regs;
-                        default: state <= fetch;
-                    endcase
+                    if (opcode == MOV_I) begin
+                        state <= update_regs;
+                    end else begin
+                        state <= fetch;
+                    end
                 end
                 fetch: begin
                     state <= load_A_B_shift;
@@ -149,7 +150,7 @@ module controller(input clk, input rst_n,
                     state <= load_C_status;
                 end
                 load_C_status: begin
-                    if (opcode == CMP && opcode[5] | opcode[4] == 1'b1) begin
+                    if (opcode[2:0] == CMP) begin
                         state <= fetch;
                     end else begin
                         state <= update_regs;
@@ -255,6 +256,26 @@ module controller(input clk, input rst_n,
                     end
 
                     //en_status PASSED IN BY DECODER
+                end
+            end
+            update_regs: begin
+                waiting = 1'b1;
+                /*
+                take care of:
+                - wb_sel
+                - w_en
+                - w_addr
+                */
+                //normal instructions
+                if (opcode[6] == 0)  begin
+                    //wb_sel
+                    wb_sel = 1'b1;
+
+                    //w_en
+                    w_en = 1'b1;
+
+                    //w_addr
+                    w_addr = rd;
                 end
             end
         endcase
