@@ -1,11 +1,11 @@
 module controller(input clk, input rst_n,
                 input [6:0] opcode, input [1:0] shift_op,
-                input [31:0] status_reg, input en_status , input [3:0] cond
+                input [31:0] status_reg, input en_status , input [3:0] cond,
                 input [3:0] rn, input [3:0] rd, input [3:0] rm, input [3:0] rs,
                 input [31:0] imme_data, input [31:0] shift_imme,
                 output waiting,
                 output [1:0] wb_sel, output sel_A, output sel_B, output sel_shift,
-                output w_en, output en_A, output en_B, output en_C, output en_S,
+                output w_en, output en_A, output en_B, output en_C, output en_S, output [2:0] ALU_op,
                 output load_ir, output load_pc, output clear_pc, //not yet used
                 output load_addr, output sel_addr, output ram_w_en);
 
@@ -110,11 +110,11 @@ module controller(input clk, input rst_n,
     */
 
     // localparam for states
-    localparam [2:0] reset = 3'd1;
-    localparam [2:0] fetch = 3'd2;
-    localparam [2:0] load_A_B_shift = 3'd3;
-    localparam [2:0] update_regs_status = 3'd4;
-    localparam [2:0] finish = 3'd5; //temp state
+    localparam [2:0] reset = 3'd0;
+    localparam [2:0] fetch = 3'd1;
+    localparam [2:0] load_A_B_shift = 3'd2;
+    localparam [2:0] update_regs_status = 3'd3;
+    localparam [2:0] finish = 3'd4; //temp state
 
     // localparam for specific instructions
     localparam [6:0] NOP = 7'b0000000;
@@ -129,8 +129,46 @@ module controller(input clk, input rst_n,
     localparam [2:0] ORR = 3'b011;
     localparam [2:0] XOR = 3'b111;
 
-
+    // reg for state
     reg [2:0] state;
+
+    // reg for output
+    reg waiting_reg;
+    reg [1:0] wb_sel_reg;
+    reg sel_A_reg;
+    reg sel_B_reg;
+    reg sel_shift_reg;
+    reg w_en_reg;
+    reg en_A_reg;
+    reg en_B_reg;
+    reg en_C_reg;
+    reg en_S_reg;
+    reg [2:0] ALU_op_reg;
+    reg load_ir_reg;
+    reg load_pc_reg;
+    reg clear_pc_reg;
+    reg load_addr_reg;
+    reg sel_addr_reg;
+    reg ram_w_en_reg;
+
+    // assign output
+    assign waiting = waiting_reg;
+    assign wb_sel = wb_sel_reg;
+    assign sel_A = sel_A_reg;
+    assign sel_B = sel_B_reg;
+    assign sel_shift = sel_shift_reg;
+    assign w_en = w_en_reg;
+    assign en_A = en_A_reg;
+    assign en_B = en_B_reg;
+    assign en_C = en_C_reg;
+    assign en_S = en_S_reg;
+    assign ALU_op = ALU_op_reg;
+    assign load_ir = load_ir_reg;
+    assign load_pc = load_pc_reg;
+    assign clear_pc = clear_pc_reg;
+    assign load_addr = load_addr_reg;
+    assign sel_addr = sel_addr_reg;
+    assign ram_w_en = ram_w_en_reg;
 
     always_ff @(posedge clk or negedge rst_n) begin
         if (rst_n == 1'b0) begin
@@ -138,11 +176,7 @@ module controller(input clk, input rst_n,
         end else begin
             case (state)
                 reset: begin
-                    if (opcode == MOV_I) begin
-                        state <= update_regs_status;
-                    end else begin
-                        state <= fetch;
-                    end
+                    state <= fetch;
                 end
                 fetch: begin
                     state <= load_A_B_shift;
@@ -165,18 +199,20 @@ module controller(input clk, input rst_n,
 
     always_comb begin
         // please take the above signal and concat it like so {waiting, wb_sel, sel_A, ...} = number is bits'd0;
-        {waiting, wb_sel, sel_A, sel_B, sel_shift, w_en, en_A, en_B, en_C, en_status, en_S, load_ir, load_pc, clear_pc, load_addr, sel_addr, ram_w_en} = 17'b0;
+        {waiting_reg, wb_sel_reg, sel_A_reg, sel_B_reg, sel_shift_reg, w_en_reg, en_A_reg, en_B_reg, en_C_reg, en_S_reg, ALU_op_reg, load_ir_reg, load_pc_reg, clear_pc_reg, load_addr_reg, sel_addr_reg, ram_w_en_reg} = 19'b0;
         // then assign the signal to the output
         case (state)
             reset: begin
-                waiting = 1'b1;
+                waiting_reg = 1'b1;
             end
             fetch: begin
-                waiting = 1'b1;
-                load_ir = 1'b1;
+                waiting_reg = 1'b1;
+                load_ir_reg = 1'b1;
+
+                //also when you change sel_shift
             end
             load_A_B_shift: begin
-                waiting = 1'b1;
+                waiting_reg = 1'b1;
                 /*
                 take care of:
                 - sel_shift
@@ -191,67 +227,63 @@ module controller(input clk, input rst_n,
                 - ALU_op
                 */
                 //normal instructions
-                if (opcode[6] == 0)  begin
+                if (opcode[6] == 0 && cond != 4'b1111)  begin
                     //loads A
                     if (opcode[3] == 1) begin
-                        en_A = 1'b1;
-                        A_addr = rn;
+                        en_A_reg = 1'b1;
                     end
 
                     //load B
                     if (opcode[4] == 1'b1) begin
-                        en_B = 1'b1;
-                        B_addr = rm;
+                        en_B_reg = 1'b1;
                     end
 
                     //load shift
                     if (opcode[4] == 1'b1) begin
-                        en_S = 1'b1;
-                        sel_shift = opcode[5];
+                        en_S_reg = 1'b1;
+                        sel_shift_reg = opcode[5];
                     end
 
                     //sel_A
-                    if (opcode[3] == 1'b0) begin
-                        sel_A = 1'b1;
+                    if (opcode[3] == 1'b1) begin
+                        sel_A_reg = 1'b1;
                     end
 
                     //sel_B
-                    if (opcode[4] == 1'b0) begin
-                        sel_B = 1'b1;
+                    if (opcode[4] == 1'b1) begin
+                        sel_B_reg = 1'b1;
                     end
 
                     //ALU_op
                     case (opcode[2:0])
-                        3'b000: ALU_op = ADD;
-                        3'b001: ALU_op = SUB;
-                        3'b010: ALU_op = SUB;
-                        3'b011: ALU_op = AND;
-                        3'b100: ALU_op = ORR;
-                        3'b111: ALU_op = XOR;
-                        default: ALU_op = ADD;
+                        3'b000: ALU_op_reg = ADD;
+                        3'b001: ALU_op_reg = SUB;
+                        3'b010: ALU_op_reg = SUB;
+                        3'b011: ALU_op_reg = AND;
+                        3'b100: ALU_op_reg = ORR;
+                        3'b101: ALU_op_reg = XOR;
+                        default: ALU_op_reg = ADD;
                     endcase
                 end
             end
             update_regs_status: begin
-                waiting = 1'b1;
+                waiting_reg = 1'b1;
                 /*
                 take care of:
                 - wb_sel
                 - w_en
-                - w_addr
                 */
                 //normal instructions
-                if (opcode[6] == 0)  begin
+                if (opcode[6] == 0 && cond != 4'b1111)  begin
 
                     if (opcode[3:0] != CMP) begin
                         //wb_sel
-                        wb_sel = 1'b1;
+                        wb_sel_reg = 1'b0;
 
                         //w_en
-                        w_en = 1'b1;
+                        w_en_reg = 1'b1;
 
-                        //w_addr
-                        w_addr = rd;
+                        //w_addr is taken from decoder
                     end
                 end
             end
