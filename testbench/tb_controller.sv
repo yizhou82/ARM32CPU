@@ -105,6 +105,8 @@ module tb_controller(output err);
         clkR; // execute instruction
         check(1, sel_A, 2);
         check(1, sel_B, 3);
+        check(0, en_A, 20);
+        check(0, en_B, 21);
         check(3'b000, ALU_op, 4);
         clkR; // write back
         check(1, w_en, 5);
@@ -127,6 +129,8 @@ module tb_controller(output err);
         clkR; // execute instruction
         check(1, sel_A, 8);
         check(0, sel_B, 9);
+        check(0, en_A, 22);
+        check(1, en_B, 23);
         check(3'b000, ALU_op, 10);
         clkR; // write back
         check(1, w_en, 11);
@@ -147,6 +151,8 @@ module tb_controller(output err);
         clkR; // execute instruction
         check(0, sel_A, 15);
         check(0, sel_B, 16);
+        check(1, en_A, 24);
+        check(1, en_B, 25);
         check(3'b001, ALU_op, 17);
         clkR; // write back
         check(1, w_en, 18);
