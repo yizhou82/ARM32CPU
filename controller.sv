@@ -1,104 +1,12 @@
 module controller(input clk, input rst_n,
-                input [6:0] opcode, input [1:0] shift_op,
-                input [31:0] status_reg, input en_status , input [3:0] cond,
-                input [3:0] rn, input [3:0] rd, input [3:0] rm, input [3:0] rs,
-                input [31:0] imme_data, input [31:0] shift_imme,
+                input [6:0] opcode, input [31:0] status_reg, input [3:0] cond,
                 output waiting,
-                output [1:0] wb_sel, output sel_A, output sel_B, output sel_shift,
+                output wb_sel, output sel_A, output sel_B, output sel_shift,
                 output w_en, output en_A, output en_B, output en_C, output en_S, output [2:0] ALU_op,
                 output load_ir, output load_pc, output clear_pc, //not yet used
                 output load_addr, output sel_addr, output ram_w_en);
 
     /*
-    Regular Instructions (No-type)
-    NOP: 0000000
-    HLT: 0000001
-
-    Regular Instructions (I-type)
-    ADD: 0010000 (3clk)
-        1. A_addr = rn, en_A = 1
-        2. sel_A = 0, sel_B = 1, ALU_op = 000, en_C = 1
-        3. wb_sel = 1, w_en = 1, w_addr = rd
-    SUB: 0010001
-        same as ADD, ALU_op = 001
-    CMP: 0010010
-        same as SUB, en_status = 1
-    AND: 0010011
-        same as ADD, ALU_op = 010
-    ORR: 0010100
-        same as ADD, ALU_op = 011
-    EOR: 0010101 == XOR
-        same as ADD, ALU_op = 111
-    MOV: 0011000 (1clk)
-        1. wb_sel = 1, w_en = 1, w_addr = rd
-    LSL: 0011001
-        1. B_addr = rm, en_B = 1, sel_shift = 0, en_S = 1
-        2. shift_op = 0, sel_A = 1, sel_B = 0, ALU_op = 000, en_C = 1
-        3. wb_sel = 1, w_en = 1, w_addr = rd
-    LSR: 0011010
-        same as LSL, shift_op = 1
-    ASR: 0011011
-        same as LSL, shift_op = 2
-    ROR: 0011100
-        same as LSL, shift_op = 3
-
-    Regular Instructions (R-type)
-    ADD: 0100000
-        1. A_addr = rn, en_A = 1, B_addr = rm, en_B = 1, sel_shift = 0, en_S = 1
-        2. shift_op = 0, sel_A = 0, sel_B = 1, ALU_op = 000, en_C = 1
-        3. wb_sel = 1, w_en = 1, w_addr = rd
-    SUB: 0100001
-        same as ADD, ALU_op = 001
-    CMP: 0100010
-        same as SUB, en_status = 1
-    AND: 0100011
-        same as ADD, ALU_op = 010
-    ORR: 0100100
-        same as ADD, ALU_op = 011
-    EOR: 0100101 == XOR
-        same as ADD, ALU_op = 111
-    MOV: 0101000
-        1. B_addr = rm, en_B = 1, sel_shift = 0, en_S = 1
-        2. shift_op = 0, sel_A = 1, sel_B = 0, ALU_op = 000, en_C = 1
-        3. wb_sel = 1, w_en = 1, w_addr = rd
-
-    Regular Instructions (RS-type)
-    ADD: 0110000
-        1. A_addr = rn, en_A = 1, B_addr = rm, en_B = 1, shift_addr = rs, sel_shift = 1, en_S = 1
-        2. shift_op = 0, sel_A = 0, sel_B = 1, ALU_op = 000, en_C = 1
-        3. wb_sel = 1, w_en = 1, w_addr = rd
-    SUB: 0110001
-        same as ADD, ALU_op = 001
-    CMP: 0110010
-        same as SUB, en_status = 1
-    AND: 0110011
-        same as ADD, ALU_op = 010
-    ORR: 0110100
-        same as ADD, ALU_op = 011
-    EOR: 0110101 == XOR
-        same as ADD, ALU_op = 111
-    MOV: 0111000
-        1. B_addr = rm, en_B = 1, shift_addr = rs, sel_shift = 1, en_S = 1
-        2. shift_op = 0, sel_A = 1, sel_B = 0, ALU_op = 000, en_C = 1
-        3. wb_sel = 1, w_en = 1, w_addr = rd
-    LSL: 0111001
-        1. B_addr = rm, en_B = 1, shift_addr = rs, sel_shift = 1, en_S = 1
-        2. shift_op = 0, sel_A = 1, sel_B = 0, ALU_op = 000, en_C = 1
-        3. wb_sel = 1, w_en = 1, w_addr = rd
-    LSR: 0111010
-        same as LSL, shift_op = 1
-    ASR: 0111011
-        same as LSL, shift_op = 2
-    ROR: 0111100
-        same as LSL, shift_op = 3
-
-    Branch Instructions
-    B: 1000000
-    BX: 1000001
-    BL: 1000010
-    BLX: 1000011
-    BEQ: 1000100
-    BNE: 1000101
 
     Load/Store Instructions - TBA
     - P = 1 -> Pre-Indexing
@@ -131,6 +39,7 @@ module controller(input clk, input rst_n,
 
     // reg for state
     reg [2:0] state;
+    reg start = 1'b0;
 
     // reg for output
     reg waiting_reg;
@@ -171,8 +80,9 @@ module controller(input clk, input rst_n,
     assign ram_w_en = ram_w_en_reg;
 
     always_ff @(posedge clk or negedge rst_n) begin
-        if (rst_n == 1'b0) begin
+        if (rst_n == 1'b0 && start == 1'b0) begin
             state <= reset;
+            start <= 1'b1;
         end else begin
             case (state)
                 reset: begin
@@ -186,12 +96,14 @@ module controller(input clk, input rst_n,
                 end
                 update_regs_status: begin
                     state <= finish;
+                    start <= 1'b0; //end of cycle
                 end
                 finish : begin
                     state <= finish;
                 end
                 default: begin
                     state <= reset;
+                    start <= 1'b0;
                 end
             endcase
         end
@@ -229,7 +141,7 @@ module controller(input clk, input rst_n,
                 //normal instructions
                 if (opcode[6] == 0 && cond != 4'b1111)  begin
                     //loads A
-                    if (opcode[3] == 1) begin
+                    if (opcode[3] == 1'b1) begin
                         en_A_reg = 1'b1;
                     end
 

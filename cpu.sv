@@ -24,7 +24,7 @@ module cpu (input clk, input rst_n, input [31:0] instr,
 
     // controller outputs
     wire waiting_ctrl;
-    wire [1:0] wb_sel;
+    wire wb_sel;
     wire sel_A;
     wire sel_B;
     wire sel_shift;
@@ -73,11 +73,11 @@ module cpu (input clk, input rst_n, input [31:0] instr,
         .en_B(en_B),
         .en_S(en_S),
         .shift_op(shift_op),
-        .shift_imme(imm5),
+        .shift_imme({27'd0, imm5}),
         .sel_shift(sel_shift),
         .sel_A(sel_A),
         .sel_B(sel_B),
-        .imme_data(imm12),
+        .imme_data({20'd0, imm12}),
         .ALU_op(ALU_op),
         .en_status(en_status),
         .datapath_out(datapath_out_dp),
@@ -89,16 +89,8 @@ module cpu (input clk, input rst_n, input [31:0] instr,
         .clk(clk),
         .rst_n(rst_n),
         .opcode(opcode),
-        .shift_op(shift_op),
-        .status_reg(status_out),
-        .en_status(en_status),
+        .status_reg(status_out_dp),
         .cond(cond),
-        .rn(rn),
-        .rd(rd),
-        .rm(rm),
-        .rs(rs),
-        .imme_data(imm12),
-        .shift_imme(imm5),
         .waiting(waiting_ctrl),
         .wb_sel(wb_sel),
         .sel_A(sel_A),

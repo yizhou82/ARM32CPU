@@ -26,6 +26,28 @@ module tb_cpu(output err);
             #5;
         end
     endtask: clkR
+
+    // reset task
+    task reset;
+        begin
+            rst_n = 1'b1;
+            #5;
+            rst_n = 1'b0;
+            #5;
+            rst_n = 1'b1;
+        end
+    endtask: reset
+
+    //cycle and reset
+    task clkRst;
+        begin
+            reset;
+            clkR;
+            clkR;
+            clkR;
+            clkR;
+        end
+    endtask: clkRst
     
     // Instantiate the CPU module
     cpu DUT (
@@ -37,7 +59,18 @@ module tb_cpu(output err);
         .datapath_out(datapath_out)
     );
     
+    integer i = 0;
     initial begin
+        //load every register with value of register number
+        instr = 32'b1110_00111010_0000_0000_000000000001; // MOV R0, #0
+
+        for (i = 0; i < 16; i = i + 1) begin
+            clkRst;
+            instr = instr + (32'd1 << 12); //increment the register addr
+            instr = instr + 32'd1;       //increment the register value
+        end
+        //need to have a **negedge** rst_n
+
         instr = 32'b00000000_00000000_00000000_00000000;
         rst_n = 1'b0;
         clkR;
