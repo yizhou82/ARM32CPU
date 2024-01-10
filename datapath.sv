@@ -26,7 +26,8 @@ module datapath(input clk, input [31:0] datapath_in, input wb_sel,
     ALU alu(.val_A(val_A), .val_B(val_B), .ALU_op(ALU_op), .ALU_out(ALU_out), .flags(status_in));
 
     //muxes
-    assign w_data = (wb_sel == 1'b1) ? datapath_in : ALU_out;
+    // assign w_data = (wb_sel == 1'b1) ? datapath_in : ALU_out;
+    assign w_data = ALU_out;
     assign val_A = (sel_A == 1'b1) ? 31'b0 : A_reg;
     assign val_B = (sel_B == 1'b1) ? imme_data : shift_out; 
     assign shift_amt = (sel_shift == 1'b0) ? shift_imme : shift_data;

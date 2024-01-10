@@ -111,11 +111,14 @@ module controller(input clk, input rst_n,
 
     always_comb begin
         // please take the above signal and concat it like so {waiting, wb_sel, sel_A, ...} = number is bits'd0;
-        {waiting_reg, wb_sel_reg, sel_A_reg, sel_B_reg, sel_shift_reg, w_en_reg, en_A_reg, en_B_reg, en_C_reg, en_S_reg, ALU_op_reg, load_ir_reg, load_pc_reg, clear_pc_reg, load_addr_reg, sel_addr_reg, ram_w_en_reg} = 19'b0;
+        {waiting_reg, wb_sel_reg, sel_A_reg, sel_B_reg, sel_shift_reg, w_en_reg, en_A_reg, en_B_reg, en_C_reg, en_S_reg, load_ir_reg, load_pc_reg, clear_pc_reg, load_addr_reg, sel_addr_reg, ram_w_en_reg} = 17'b0;
+        
         // then assign the signal to the output
         case (state)
             reset: begin
                 waiting_reg = 1'b1;
+
+                ALU_op_reg = ADD;
             end
             fetch: begin
                 waiting_reg = 1'b1;
@@ -125,6 +128,9 @@ module controller(input clk, input rst_n,
             end
             load_A_B_shift: begin
                 waiting_reg = 1'b1;
+
+                ALU_op_reg = ADD;
+
                 /*
                 take care of:
                 - sel_shift
@@ -156,26 +162,26 @@ module controller(input clk, input rst_n,
                         sel_shift_reg = opcode[5];
                     end
 
-                    //sel_A
-                    if (opcode[3] == 1'b1) begin
-                        sel_A_reg = 1'b1;
-                    end
+                    // //sel_A -> opposite of load A
+                    // if (opcode[3] == 1'b0) begin
+                    //     sel_A_reg = 1'b1;
+                    // end
 
-                    //sel_B
-                    if (opcode[4] == 1'b1) begin
-                        sel_B_reg = 1'b1;
-                    end
+                    // //sel_B -> opposite of load B
+                    // if (opcode[4] == 1'b0) begin
+                    //     sel_B_reg = 1'b1;
+                    // end
 
-                    //ALU_op
-                    case (opcode[2:0])
-                        3'b000: ALU_op_reg = ADD;
-                        3'b001: ALU_op_reg = SUB;
-                        3'b010: ALU_op_reg = SUB;
-                        3'b011: ALU_op_reg = AND;
-                        3'b100: ALU_op_reg = ORR;
-                        3'b101: ALU_op_reg = XOR;
-                        default: ALU_op_reg = ADD;
-                    endcase
+                    // //TODO: I think this depends on timing. We need this here because regfile loads too early compared to this switch
+                    // if (opcode[3:0] != CMP) begin
+                    //     //wb_sel
+                    //     wb_sel_reg = 1'b0;
+
+                    //     //w_en
+                    //     w_en_reg = 1'b1;
+
+                    //     //w_addr is taken from decoder
+                    // end
                 end
             end
             update_regs_status: begin
@@ -197,7 +203,32 @@ module controller(input clk, input rst_n,
 
                         //w_addr is taken from decoder
                     end
+
+                    //ALU_op -> TODO: Another timing issue. We need this here because ALU_op is too early compared to this switch   
+                    case (opcode[2:0])
+                        3'b000: ALU_op_reg = ADD;
+                        3'b001: ALU_op_reg = SUB;
+                        3'b010: ALU_op_reg = SUB;
+                        3'b011: ALU_op_reg = AND;
+                        3'b100: ALU_op_reg = ORR;
+                        3'b101: ALU_op_reg = XOR;
+                        default: ALU_op_reg = ADD;
+                    endcase
+
+                    //sel_A -> opposite of load A
+                    if (opcode[3] == 1'b0) begin
+                        sel_A_reg = 1'b1;
+                    end
+
+                    //sel_B -> opposite of load B
+                    if (opcode[4] == 1'b0) begin
+                        sel_B_reg = 1'b1;
+                    end
                 end
+            end
+            default: begin
+                waiting_reg = 1'b1;
+                ALU_op_reg = ~(~ADD);
             end
         endcase
     end
