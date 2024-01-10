@@ -66,25 +66,25 @@ module idecoder(
                         // Immediate
                         case(instr[24:21])
                             4'b0100: begin // ADD
-                                opcode_reg = 7'b0010000;
+                                opcode_reg = 7'b0001000;
                             end
                             4'b0010: begin // SUB
-                                opcode_reg = 7'b0010001;
+                                opcode_reg = 7'b0001001;
                             end
                             4'b1010: begin // CMP
-                                opcode_reg = 7'b0010010;
+                                opcode_reg = 7'b0001010;
                             end
                             4'b0000: begin // AND
-                                opcode_reg = 7'b0010011;
+                                opcode_reg = 7'b0001011;
                             end
                             4'b1100: begin // ORR
-                                opcode_reg = 7'b0010100;
+                                opcode_reg = 7'b0001100;
                             end
                             4'b0001: begin // EOR
-                                opcode_reg = 7'b0010101;
+                                opcode_reg = 7'b0001101;
                             end
                             4'b1101: begin // MOV 
-                                opcode_reg = 7'b0011000;
+                                opcode_reg = 7'b0000000;
                             end
                             default: begin // Return HALT if undefined
                                 opcode_reg = 7'b0000001;
@@ -94,25 +94,25 @@ module idecoder(
                         // Register Shifted
                         case(instr[24:21])
                             4'b0100: begin // ADD
-                                opcode_reg = 7'b0100000;
+                                opcode_reg = 7'b0111000;
                             end
                             4'b0010: begin // SUB
-                                opcode_reg = 7'b0100001;
+                                opcode_reg = 7'b0111001;
                             end
                             4'b1010: begin // CMP
-                                opcode_reg = 7'b0100010;
+                                opcode_reg = 7'b0111010;
                             end
                             4'b0000: begin // AND
-                                opcode_reg = 7'b0100011;
+                                opcode_reg = 7'b0111011;
                             end
                             4'b1100: begin // ORR
-                                opcode_reg = 7'b0100100;
+                                opcode_reg = 7'b0111100;
                             end
                             4'b0001: begin // EOR
-                                opcode_reg = 7'b0100101;
+                                opcode_reg = 7'b0111101;
                             end
                             4'b1101: begin // MOV and shifts
-                                opcode_reg = 7'b0101000;
+                                opcode_reg = 7'b0110000;
                             end
                             default: begin // Return HALT if undefined
                                 opcode_reg = 7'b0000001;
@@ -122,25 +122,25 @@ module idecoder(
                         // Register
                         case(instr[24:21])
                             4'b0100: begin // ADD
-                                opcode_reg = 7'b0000000;
+                                opcode_reg = 7'b0011000;
                             end
                             4'b0010: begin // SUB
-                                opcode_reg = 7'b0000001;
+                                opcode_reg = 7'b0011001;
                             end
                             4'b1010: begin // CMP
-                                opcode_reg = 7'b0000010;
+                                opcode_reg = 7'b0011010;
                             end
                             4'b0000: begin // AND
-                                opcode_reg = 7'b0000011;
+                                opcode_reg = 7'b0011011;
                             end
                             4'b1100: begin // ORR
-                                opcode_reg = 7'b0000100;
+                                opcode_reg = 7'b0011100;
                             end
                             4'b0001: begin // EOR
-                                opcode_reg = 7'b0000101;
+                                opcode_reg = 7'b0011101;
                             end
                             4'b1101: begin // MOV and shifts
-                                opcode_reg = 7'b0001000;
+                                opcode_reg = 7'b0010000;
                             end
                             default: begin // Return HALT if undefined
                                 opcode_reg = 7'b0000001;
