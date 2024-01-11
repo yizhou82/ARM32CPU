@@ -82,7 +82,7 @@ module tb_cpu(output err);
 
         // Test 2: ADD R1, R1, R0
         //ADD R0, R0, R0
-        instr = 32'b0000_00001001_0001_0001_0000_00000000; //b0000_00101001_0001_0001_0000_00001000
+        instr = 32'b0000_00_0_0100_1_0001_0001_0000_00000000; //b0000_00101001_0001_0001_0000_00001000
         clkRst;
         check(32'b00000000_00000000_00000000_00000000, status_out, 0, 1);
         check(32'd4, datapath_out, 0, 1);
@@ -91,19 +91,21 @@ module tb_cpu(output err);
         instr = 32'b0000_00_1_0100_1_0001_0001_000000001000;
         clkRst;
         check(32'b00000000_00000000_00000000_00000000, status_out, 0, 2);
-        check(32'd10, datapath_out, 0, 2);
+        check(32'd12, datapath_out, 0, 2);
 
 
 
-        // Test 3: ADD R2, R2, R0 << 2
-        instr = 32'b1110_00_0_0100_0_0001_0001_0010_0_00_1_0000;
+        // Test 3: ADD R2, R2, R0 << R2
+        instr = 32'b1110_00_0_0100_0_0010_0010_0010_0_00_1_0000;
         clkRst;
         check(32'b00000000_00000000_00000000_00000000, status_out, 0, 3);
-        check(32'd11, datapath_out, 0, 3);
-        instr = 32'b1110_000_0100_0_0000_0000_00000_00_0_0001; // ADD R0, R0, R1
+        check(32'd19, datapath_out, 0, 3);
+
+
+        instr = 32'b1110_00_0_0100_1_0000_0000_00000_00_0_0001; // ADD_R R0, R0, R1
         clkRst;
         check(32'b00000000_00000000_00000000_00000000, status_out, 0, 4);
-        check(32'd12, datapath_out, 0, 4);
+        check(32'd14, datapath_out, 0, 4);
 
     end
 endmodule
