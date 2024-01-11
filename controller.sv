@@ -179,7 +179,7 @@ module controller(input clk, input rst_n,
                     // end
                 end
             end
-            update_regs_status: begin
+            update_regs_status, finish: begin
                 waiting_reg = 1'b1;
                 /*
                 take care of:
