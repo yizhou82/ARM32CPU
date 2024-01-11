@@ -76,7 +76,7 @@ module tb_cpu(output err);
         instr = 32'b0000_00001001_0000_00000000_00000000;
         clkRst;
         check(32'b00000000_00000000_00000000_00000000, status_out, 0, 1);
-        check(32'd2, datapath_out, 0, 2)
+        check(32'd2, datapath_out, 0, 2);
 
         //TODO: donno what is going on here
         // // Test 2: Test the ADD instruction

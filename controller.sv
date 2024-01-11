@@ -111,14 +111,12 @@ module controller(input clk, input rst_n,
 
     always_comb begin
         // please take the above signal and concat it like so {waiting, wb_sel, sel_A, ...} = number is bits'd0;
-        {waiting_reg, wb_sel_reg, sel_A_reg, sel_B_reg, sel_shift_reg, w_en_reg, en_A_reg, en_B_reg, en_C_reg, en_S_reg, load_ir_reg, load_pc_reg, clear_pc_reg, load_addr_reg, sel_addr_reg, ram_w_en_reg} = 17'b0;
+        {waiting_reg, wb_sel_reg, sel_A_reg, sel_B_reg, sel_shift_reg, w_en_reg, en_A_reg, en_B_reg, en_C_reg, en_S_reg, load_ir_reg, load_pc_reg, clear_pc_reg, load_addr_reg, sel_addr_reg, ram_w_en_reg, ALU_op_reg} = 19'b0;
         
         // then assign the signal to the output
         case (state)
             reset: begin
                 waiting_reg = 1'b1;
-
-                ALU_op_reg = ADD;
             end
             fetch: begin
                 waiting_reg = 1'b1;
@@ -128,9 +126,6 @@ module controller(input clk, input rst_n,
             end
             load_A_B_shift: begin
                 waiting_reg = 1'b1;
-
-                ALU_op_reg = ADD;
-
                 /*
                 take care of:
                 - sel_shift
@@ -225,10 +220,6 @@ module controller(input clk, input rst_n,
                         sel_B_reg = 1'b1;
                     end
                 end
-            end
-            default: begin
-                waiting_reg = 1'b1;
-                ALU_op_reg = ~(~ADD);
             end
         endcase
     end
