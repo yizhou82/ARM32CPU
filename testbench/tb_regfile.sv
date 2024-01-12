@@ -1,9 +1,9 @@
 module tb_regfile(output err);
 
     //regs for testbench
-    reg [31:0] w_data, A_data, B_data, shift_data;
-    reg [3:0] A_addr, B_addr, shift_addr, w_addr;
-    reg w_en, clk;
+    reg [31:0] w_data1, w_data2, A_data, B_data, shift_data;
+    reg [3:0] A_addr, B_addr, shift_addr, w_addr1, w_addr2;
+    reg w_en1, w_en2, clk;
     integer error_count = 0;
 
     // tasks
@@ -28,10 +28,13 @@ module tb_regfile(output err);
 
     // DUT
     regfile regfile(
-        .w_data(w_data),
-        .w_addr(w_addr),
-        .w_en(w_en),
+        .w_data1(w_data1),
+        .w_addr1(w_addr1),
+        .w_en1(w_en1),
         .clk(clk),
+        .w_data2(w_data2),
+        .w_addr2(w_addr2),
+        .w_en2(w_en2),
         .A_addr(A_addr),
         .B_addr(B_addr),
         .shift_addr(shift_addr),
@@ -43,10 +46,13 @@ module tb_regfile(output err);
     integer i = 0;
     initial begin
         // test every register write and read on A_data
-        for (i = 0; i < 16; i = i + 1) begin
-            w_data = i;
-            w_addr = i;
-            w_en = 1'b1;
+        for (i = 0; i < 8; i = i + 1) begin
+            w_data1 = i;
+            w_addr1 = i;
+            w_en1 = 1'b1;
+            w_data2 = i + 8;
+            w_addr2 = i + 8;
+            w_en2 = 1'b1;
             A_addr = i;
             clkR;
             check(i, A_data, A_addr, i);
@@ -54,7 +60,7 @@ module tb_regfile(output err);
 
         // test every register read again
         for (i = 0; i < 16 - 2; i = i + 1) begin
-            w_en = 1'b0;
+            w_en1 = 1'b0;
             A_addr = i;
             B_addr = i + 1;
             shift_addr = i + 2;

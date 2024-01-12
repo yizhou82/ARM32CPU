@@ -1,4 +1,5 @@
-module regfile(input [31:0] w_data, input [3:0] w_addr, input w_en, input clk,
+module regfile(input [31:0] w_data1, input [3:0] w_addr1, input w_en1, input clk,
+            input [31:0] w_data2, input [3:0] w_addr2, input w_en2,
             input [3:0] A_addr, input [3:0] B_addr, input [3:0] shift_addr,
             output [31:0] A_data, output [31:0] B_data, output [31:0] shift_data);
 
@@ -41,8 +42,12 @@ module regfile(input [31:0] w_data, input [3:0] w_addr, input w_en, input clk,
 
     // write is sequential
     always_ff @(posedge clk) begin
-        if (w_en == 1'b1) begin
-            regsiteres[w_addr] = w_data;
+        if (w_en1 == 1'b1) begin
+            regsiteres[w_addr1] = w_data1;
+        end
+
+        if (w_en2 == 1'b1) begin
+            regsiteres[w_addr2] = w_data2;
         end
     end
 endmodule: regfile
