@@ -43,7 +43,7 @@ module idecoder(
         rd_reg = instr[15:12];
         rs_reg = instr[11:8];
         rm_reg = instr[3:0];
-        shift_op_reg = instr[7:6];
+        shift_op_reg = instr[6:5];
         imm5_reg = instr[11:7];
         imm12_reg = instr[11:0];
         imm24_reg = instr[23:0];

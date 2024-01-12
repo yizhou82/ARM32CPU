@@ -28,7 +28,7 @@ module controller(input clk, input rst_n,
     localparam [6:0] NOP = 7'b0000000;
     localparam [6:0] HLT = 7'b0000001;
     localparam [6:0] MOV_I = 7'b0001000;
-    localparam [2:0] CMP = 4'b0010; //some overlap with none but should be fine
+    localparam [3:0] CMP = 4'b1010; //some overlap with none but should be fine
 
     // localparam for ALU_op
     localparam [2:0] ADD = 3'b000;
