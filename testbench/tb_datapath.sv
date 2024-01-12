@@ -35,27 +35,28 @@ module tb_datapath(output err);
 
   // DUT
   datapath datapath(
-      .clk(clk),
-      .datapath_in(datapath_in),
       .wb_sel(wb_sel),
-      .w_addr(w_addr),
-      .w_en(w_en),
       .A_addr(A_addr),
       .B_addr(B_addr),
       .shift_addr(shift_addr),
       .en_A(en_A),
       .en_B(en_B),
       .en_S(en_S),
-      .sel_A(sel_A),
-      .sel_B(sel_B),
-      .sel_shift(sel_shift),
       .shift_op(shift_op),
       .shift_imme(shift_imme),
+      .sel_shift(sel_shift),
+      .sel_post_shift(sel_post_shift),
+      .sel_A(sel_A),
+      .sel_B(sel_B),
       .imme_data(imme_data),
+      .PC(PC),
       .ALU_op(ALU_op),
+      .en_status(en_status),
+      .sel_A_in(2'b00),
+      .sel_B_in(2'b00),
+      .sel_shift_in(1'b1),
       .datapath_out(datapath_out),
-      .status_out(status_out),
-      .en_status(en_status)
+      .status_out(status_out)
   );
 
   integer i = 0;

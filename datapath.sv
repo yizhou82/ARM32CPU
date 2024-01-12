@@ -1,16 +1,19 @@
 module datapath(input clk, input wb_sel, input [3:0] A_addr, input [3:0] B_addr, input [3:0] shift_addr, 
                 input en_A, input en_B, input en_S, input [1:0] shift_op, input [31:0] shift_imme,
-                input sel_shift, input sel_A, input sel_B,
-                input [31:0] imme_data, input [2:0] ALU_op, input en_status,
+                input sel_shift, input sel_post_shift, input sel_A, input sel_B,
+                input [31:0] imme_data, input [31:0] PC, input [2:0] ALU_op, input en_status,
+                input [1:0] sel_A_in, input [1:0] sel_B_in, input [1:0] sel_shift_in,
                 output [31:0] datapath_out, output [31:0] status_out);
   
     // --- internal wires ---
     //regfile
     wire [31:0] w_data, A_data, B_data, shift_data;
     //shifter
-    wire [31:0] shift_out, shift_in;
+    wire [31:0] shift_out;
     //register ALU
-    wire [31:0] val_A, val_B, val_B_in, ALU_out, shift_amt, status_in, A_in, B_in, shift_in;
+    wire [31:0] val_A, val_B, val_B_in, ALU_out, shift_amt, status_in;
+    //forwarding muxes
+    reg [31:0] A_in, B_in, shift_in;
 
     // --- internal regs ---
     reg [31:0] A_reg, B_reg, S_reg, status_reg;
@@ -30,20 +33,26 @@ module datapath(input clk, input wb_sel, input [3:0] A_addr, input [3:0] B_addr,
     assign w_data = ALU_out;
     assign val_A = (sel_A == 1'b1) ? 31'b0 : A_reg;
     assign val_B_in = (sel_B == 1'b1) ? imme_data : shift_out; 
-    assign shift_amt = (sel_shift == 1'b0) ? shift_imme : shift_data;
+    assign shift_amt = (sel_shift == 1'b1) ? shift_data: shift_imme;
     assign val_B = (sel_post_shift == 1'b1) ? B_reg : val_B_in;
-    assign A_in = (1'b0) ? ALU_out : A_data; //only change during pipeline
-    assign shift_in = (1'b0) ? ALU_out : shift_data; //only change during pipeline
-
+    assign shift_in = (sel_shift_in == 1'b1) ? ALU_out : shift_data; //only change during pipeline
+    //A_mux
     always_comb begin
-        if (1'b0) begin //only change during pipeline
-            B_in = ALU_out;
-        end
-        else if (1'b0) begin //onlt change during pipeline
-            B_in = val_B;
-        end else begin
-            B_in = B_data
-        end
+        case (sel_A_in)
+            2'b00: A_in = A_data;
+            2'b01: A_in = ALU_out;
+            2'b11: A_in = PC;
+            default: A_in = A_data;
+        endcase
+    end
+    // B_in mux
+    always_comb begin
+        case (sel_B_in)
+            2'b00: B_in = B_data;
+            2'b01: B_in = ALU_out;
+            2'b11: B_in = val_B;
+            default: B_in = B_data;
+        endcase
     end
 
     //register A
