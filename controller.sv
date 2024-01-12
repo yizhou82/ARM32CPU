@@ -1,8 +1,8 @@
 module controller(input clk, input rst_n,
                 input [6:0] opcode, input [31:0] status_reg, input [3:0] cond,
                 output waiting,
-                output wb_sel, output sel_A, output sel_B, output sel_shift,
-                output w_en, output en_A, output en_B, output en_C, output en_S, output [2:0] ALU_op,
+                output wb_sel, output sel_A, output sel_B, output sel_shift, output sel_post_shift,
+                output w_en1, , output w_en2, output en_A, output en_B, output en_C, output en_S, output [2:0] ALU_op,
                 output load_ir, output load_pc, output clear_pc, //not yet used
                 output load_addr, output sel_addr, output ram_w_en);
 
@@ -18,16 +18,19 @@ module controller(input clk, input rst_n,
     */
 
     // localparam for states
+
+    //move all the local param values 1 value higher
     localparam [2:0] reset = 3'd0;
     localparam [2:0] fetch = 3'd1;
-    localparam [2:0] load_A_B_shift = 3'd2;
-    localparam [2:0] update_regs_status = 3'd3;
-    localparam [2:0] finish = 3'd4; //temp state
+    localparam [2:0] decode = 3'd2;
+    localparam [2:0] execute = 3'd3;
+    localparam [2:0] memory = 3'd4;
+    localparam [2:0] memory_wait = 3'd5;
+    localparam [2:0] write_back = 3'd6;
 
     // localparam for specific instructions
     localparam [6:0] NOP = 7'b0000000;
     localparam [6:0] HLT = 7'b0000001;
-    localparam [6:0] MOV_I = 7'b0001000;
     localparam [2:0] CMP = 4'b0010; //some overlap with none but should be fine
 
     // localparam for ALU_op
@@ -47,7 +50,9 @@ module controller(input clk, input rst_n,
     reg sel_A_reg;
     reg sel_B_reg;
     reg sel_shift_reg;
-    reg w_en_reg;
+    reg sel_post_shift_reg;
+    reg w_en1_reg;
+    reg w_en2_reg;
     reg en_A_reg;
     reg en_B_reg;
     reg en_C_reg;
@@ -66,7 +71,9 @@ module controller(input clk, input rst_n,
     assign sel_A = sel_A_reg;
     assign sel_B = sel_B_reg;
     assign sel_shift = sel_shift_reg;
-    assign w_en = w_en_reg;
+    assign sel_post_shift = sel_post_shift_reg;
+    assign w_en1 = w_en1_reg;
+    assign w_en2 = w_en2_reg;
     assign en_A = en_A_reg;
     assign en_B = en_B_reg;
     assign en_C = en_C_reg;
@@ -89,17 +96,23 @@ module controller(input clk, input rst_n,
                     state <= fetch;
                 end
                 fetch: begin
-                    state <= load_A_B_shift;
+                    state <= decode;
                 end
-                load_A_B_shift: begin
-                    state <= update_regs_status;
+                decode: begin
+                    state <= execute;
                 end
-                update_regs_status: begin
-                    state <= finish;
+                execute: begin
+                    state <= memory;
+                end
+                memory: begin
+                    state <= memory_wait;
+                end
+                memory_wait: begin
+                    state <= write_back;
+                end
+                write_back: begin
+                    state <= fetch;
                     start <= 1'b0; //end of cycle
-                end
-                finish : begin
-                    state <= finish;
                 end
                 default: begin
                     state <= reset;
@@ -111,20 +124,24 @@ module controller(input clk, input rst_n,
 
     always_comb begin
         // please take the above signal and concat it like so {waiting, wb_sel, sel_A, ...} = number is bits'd0;
-        {waiting_reg, wb_sel_reg, sel_A_reg, sel_B_reg, sel_shift_reg, w_en_reg, en_A_reg, en_B_reg, en_C_reg, en_S_reg, load_ir_reg, load_pc_reg, clear_pc_reg, load_addr_reg, sel_addr_reg, ram_w_en_reg, ALU_op_reg} = 19'b0;
+        {waiting_reg, wb_sel_reg, sel_A_reg, sel_B_reg, sel_shift_reg, sel_post_shift_reg, w_en1_reg, w_en2_reg, en_A_reg, en_B_reg, en_C_reg, en_S_reg, load_ir_reg, load_pc_reg, clear_pc_reg, load_addr_reg, sel_addr_reg, ram_w_en_reg, ALU_op_reg} = 21'b0;
         
         // then assign the signal to the output
         case (state)
             reset: begin
                 waiting_reg = 1'b1;
             end
-            fetch: begin
+            fetch: begin        //fetch from ram
+                waiting_reg = 1'b1;
+                load_ir_reg = 1'b1;
+            end
+            decode: begin
                 waiting_reg = 1'b1;
                 load_ir_reg = 1'b1;
 
                 //also when you change sel_shift
             end
-            load_A_B_shift: begin
+            execute: begin
                 waiting_reg = 1'b1;
                 /*
                 take care of:
@@ -156,30 +173,16 @@ module controller(input clk, input rst_n,
                         en_S_reg = 1'b1;
                         sel_shift_reg = opcode[5];
                     end
-
-                    // //sel_A -> opposite of load A
-                    // if (opcode[3] == 1'b0) begin
-                    //     sel_A_reg = 1'b1;
-                    // end
-
-                    // //sel_B -> opposite of load B
-                    // if (opcode[4] == 1'b0) begin
-                    //     sel_B_reg = 1'b1;
-                    // end
-
-                    // //TODO: I think this depends on timing. We need this here because regfile loads too early compared to this switch
-                    // if (opcode[3:0] != CMP) begin
-                    //     //wb_sel
-                    //     wb_sel_reg = 1'b0;
-
-                    //     //w_en
-                    //     w_en_reg = 1'b1;
-
-                    //     //w_addr is taken from decoder
-                    // end
                 end
             end
-            update_regs_status, finish: begin
+            memory: begin
+                //deal with memory if necessary
+            end
+            memory_wait: begin
+                waiting_reg = 1'b1;
+                //just a stall for LDR to read from memory
+            end
+            write_back: begin
                 waiting_reg = 1'b1;
                 /*
                 take care of:
@@ -193,13 +196,13 @@ module controller(input clk, input rst_n,
                         //wb_sel
                         wb_sel_reg = 1'b0;
 
-                        //w_en
+                        //w_en1
                         w_en_reg = 1'b1;
 
                         //w_addr is taken from decoder
                     end
 
-                    //ALU_op -> TODO: Another timing issue. We need this here because ALU_op is too early compared to this switch   
+                    //ALU_op
                     case (opcode[2:0])
                         3'b000: ALU_op_reg = ADD;
                         3'b001: ALU_op_reg = SUB;
