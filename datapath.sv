@@ -1,13 +1,16 @@
-module datapath(input clk, input wb_sel, input [3:0] A_addr, input [3:0] B_addr, input [3:0] shift_addr, 
-                input en_A, input en_B, input en_S, input [1:0] shift_op, input [31:0] shift_imme,
-                input sel_shift, input sel_post_shift, input sel_A, input sel_B,
-                input [31:0] imme_data, input [31:0] PC, input [2:0] ALU_op, input en_status,
-                input [1:0] sel_A_in, input [1:0] sel_B_in, input [1:0] sel_shift_in,
+module datapath(input clk, 
+                input [3:0] w_addr1, input w_en1, input [3:0] w_addr2, input w_en2,
+                input [3:0] A_addr, input [3:0] B_addr, input [3:0] shift_addr,                     //end of regfile inputs
+                input [31:0] PC, input [1:0] sel_A_in, input [1:0] sel_B_in, input sel_shift_in,    //inputs for forwarding muxes
+                input en_A, input en_B, input [31:0] shift_imme, input sel_shift,
+                input [1:0] shift_op, input en_S,
+                input sel_A, input sel_B, input sel_post_shift, input [31:0] imme_data,
+                input [2:0] ALU_op, input en_status,                                                //datapath inputs
                 output [31:0] datapath_out, output [31:0] status_out);
   
     // --- internal wires ---
     //regfile
-    wire [31:0] w_data, A_data, B_data, shift_data;
+    wire [31:0] A_data, B_data, shift_data;
     //shifter
     wire [31:0] shift_out;
     //register ALU
@@ -23,7 +26,7 @@ module datapath(input clk, input wb_sel, input [3:0] A_addr, input [3:0] B_addr,
     assign datapath_out = ALU_out;
 
     //internal modules
-    regfile regfile(.w_data1(w_data1), .w_addr1(w_addr1), .w_en1(w_en1), .w_data2(val_B_in),
+    regfile regfile(.w_data1(ALU_out), .w_addr1(w_addr1), .w_en1(w_en1), .w_data2(val_B_in),
                     .w_addr2(w_addr2), .w_en2(w_en2), .clk(clk), .A_addr(A_addr), .B_addr(B_addr),
                     .shift_addr(shift_addr), .A_data(A_data), .B_data(B_data), .shift_data(shift_data));
     shifter shifter(.shift_in(B_reg), .shift_op(shift_op), .shift_amt(S_reg), .shift_out(shift_out));

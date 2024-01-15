@@ -2,7 +2,7 @@ module controller(input clk, input rst_n,
                 input [6:0] opcode, input [31:0] status_reg, input [3:0] cond,
                 output waiting,
                 output wb_sel, output sel_A, output sel_B, output sel_shift, output sel_post_shift,
-                output w_en1, , output w_en2, output en_A, output en_B, output en_C, output en_S, output [2:0] ALU_op,
+                output w_en1, output w_en2, output en_A, output en_B, output en_C, output en_S, output [2:0] ALU_op,
                 output load_ir, output load_pc, output clear_pc, //not yet used
                 output load_addr, output sel_addr, output ram_w_en);
 
@@ -198,7 +198,7 @@ module controller(input clk, input rst_n,
                         wb_sel_reg = 1'b0;
 
                         //w_en1
-                        w_en_reg = 1'b1;
+                        w_en1_reg = 1'b1;
 
                         //w_addr is taken from decoder
                     end
