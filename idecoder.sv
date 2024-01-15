@@ -10,7 +10,10 @@ module idecoder(
     output [1:0] shift_op,  // Shift operation
     output [4:0] imm5,      // Immediate value
     output [11:0] imm12,    // Immediate value or second operand
-    output [23:0] imm24    // Address for branching
+    output [23:0] imm24,    // Address for branching
+    output P,
+    output U,
+    output W
 );
 
     reg en_status_reg;
@@ -35,6 +38,9 @@ module idecoder(
 
     assign type_I = instr[25];
     assign type_RS = instr[4];
+    assign P = instr[24];
+    assign U = instr[23];
+    assign W = instr[21];
 
     always_comb begin
 
@@ -168,6 +174,32 @@ module idecoder(
                 end else begin // BL
                     opcode_reg = 7'b1000100;
                 end
+            end
+            2'b01: begin //load and str
+            opcode_reg = {4'b0000, P, U, W};
+            if (instr[20] == 1'b1) begin //LDR
+                case (instr[25])
+                1'b0: begin     //LIT
+                    if (instr[19:16] == 4'b1111) begin
+                        opcode_reg[6:3] = 4'b1001;
+                    end else begin  //Immediate
+                        opcode_reg[6:3] = 4'b1101;
+                    end
+                end
+                default: begin
+                    opcode_reg[6:3] = 4'b1100;
+                end
+                endcase
+            end else begin //STR
+                case (instr[25])
+                1'b0: begin     //Immediate
+                    opcode_reg[6:3] = 4'b1111;
+                end
+                default: begin
+                    opcode_reg[6:3] = 4'b1110; 
+                end
+                endcase
+            end
             end
             default: begin // Return HALT if undefined
                 opcode_reg = 7'b0000001;
