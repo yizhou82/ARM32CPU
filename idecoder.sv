@@ -181,22 +181,22 @@ module idecoder(
                 case (instr[25])
                 1'b0: begin     //LIT
                     if (instr[19:16] == 4'b1111) begin
-                        opcode_reg[6:3] = 4'b1001;
+                        opcode_reg[6:3] = 4'b1000;
                     end else begin  //Immediate
-                        opcode_reg[6:3] = 4'b1101;
+                        opcode_reg[6:3] = 4'b1100;
                     end
                 end
                 default: begin
-                    opcode_reg[6:3] = 4'b1100;
+                    opcode_reg[6:3] = 4'b1101;
                 end
                 endcase
             end else begin //STR
                 case (instr[25])
                 1'b0: begin     //Immediate
-                    opcode_reg[6:3] = 4'b1111;
+                    opcode_reg[6:3] = 4'b1110;
                 end
                 default: begin
-                    opcode_reg[6:3] = 4'b1110; 
+                    opcode_reg[6:3] = 4'b1111; 
                 end
                 endcase
             end

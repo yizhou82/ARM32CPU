@@ -155,23 +155,23 @@ module tb_idecoder(output err);
         instr = instr | P_mask;
         instr = instr | W_mask;
         #10;
-        check(7'b1101101, opcode, 8);
+        check(7'b1100101, opcode, 8);
 
         instr = 32'b1110_01100001_0000_0000_000000000000; // LDR Register
         instr = instr | U_mask;
         #10;
-        check(7'b1100010, opcode, 9);
+        check(7'b1101010, opcode, 9);
 
         instr = 32'b1110_01000000_1010_0000_000000000000; // STR Immediate
         instr = instr | P_mask;
         #10;
-        check(7'b1111100, opcode, 10);
+        check(7'b1110100, opcode, 10);
 
         instr = 32'b1110_01100000_1010_0000_000000000000; // STR Register
         instr = instr | U_mask;
         instr = instr | W_mask;
         #10;
-        check(7'b1110011, opcode, 11);
+        check(7'b1111011, opcode, 11);
 
         // // Opcode Check: Branch
         // instr = 32'b10001010_11000101_10101010_11001100; // B
