@@ -10,7 +10,7 @@ module datapath(input clk, input [31:0] ram_data2, input sel_w_data,
   
     // --- internal wires ---
     //regfile
-    wire [31:0] A_data, B_data, shift_data;
+    wire [31:0] A_data, B_data, shift_data, w_data1;
     //shifter
     wire [31:0] shift_out;
     //register ALU
@@ -26,14 +26,14 @@ module datapath(input clk, input [31:0] ram_data2, input sel_w_data,
     assign datapath_out = out2_reg;
 
     //internal modules
-    regfile regfile(.w_data1(ALU_out), .w_addr1(w_addr1), .w_en1(w_en1), .w_data2(val_B_in),
+    regfile regfile(.w_data1(w_data1), .w_addr1(w_addr1), .w_en1(w_en1), .w_data2(val_B_in),
                     .w_addr2(w_addr2), .w_en2(w_en2), .clk(clk), .A_addr(A_addr), .B_addr(B_addr),
                     .shift_addr(shift_addr), .A_data(A_data), .B_data(B_data), .shift_data(shift_data));
     shifter shifter(.shift_in(B_reg), .shift_op(shift_op), .shift_amt(S_reg), .shift_out(shift_out));
     ALU alu(.val_A(val_A), .val_B(val_B), .ALU_op(ALU_op), .ALU_out(ALU_out), .flags(status_in));
 
     //muxes
-    assign w_data = (sel_w_data == 1'b1) ? ram_data2 : ALU_out;
+    assign w_data1 = (sel_w_data == 1'b1) ? ram_data2 : out2_reg;
     assign val_A = (sel_A == 1'b1) ? 31'b0 : A_reg;
     assign val_B_in = (sel_B == 1'b1) ? imme_data : shift_out; 
     assign shift_amt = (sel_shift == 1'b1) ? shift_data: shift_imme;
@@ -80,6 +80,13 @@ module datapath(input clk, input [31:0] ram_data2, input sel_w_data,
         end
     end
 
+    //register S
+    always_ff @(posedge clk) begin
+        if (en_S == 1'b1) begin
+            S_reg <= shift_amt;
+        end
+    end
+
     //register out1
     always_ff @(posedge clk) begin
         if (en_out1 == 1'b1) begin
@@ -90,14 +97,7 @@ module datapath(input clk, input [31:0] ram_data2, input sel_w_data,
     //register out2
     always_ff @(posedge clk) begin
         if (en_out2 == 1'b1) begin
-            out2_reg <= out2_reg;
-        end
-    end
-
-    //register S
-    always_ff @(posedge clk) begin
-        if (en_S == 1'b1) begin
-            S_reg <= shift_amt;
+            out2_reg <= out1_reg;
         end
     end
 

@@ -32,7 +32,7 @@ module tb_datapath(output err);
         end
     endtask: clkR
 
-    task reset;
+    task rstSignals;
         begin
         //set all inputs to 0
         clk = 1'b0;
@@ -66,7 +66,7 @@ module tb_datapath(output err);
         en_status2 = 1'b0;
         #5;
         end
-    endtask: reset
+    endtask: rstSignals
 
     // DUT
     datapath DUT(
@@ -142,21 +142,19 @@ module tb_datapath(output err);
         */
 
         //set app input to 0
-        reset;
+        rstSignals;
 
         // write values to every register
         for (i = 0; i < 16; i = i + 1) begin
-            sel_A = 1'b1;
-            sel_B = 1'b1;
-            imme_data = i;
-            ALU_op = 3'b000;
+            ram_data2 = i;
+            sel_w_data = 1'b1;
             w_addr1 = i;
             w_en1 = 1'b1;
             clkR;
         end
 
         // Test 1 & 2 add values in reg1 and reg2, 1 + 2 * 2 = 5
-        reset;
+        rstSignals;
         A_addr = 1;
         en_A = 1'b1;
         B_addr = 2;
@@ -164,19 +162,22 @@ module tb_datapath(output err);
         shift_addr = 32'd1;
         sel_shift = 1'b1;
         en_S = 1'b1;
-        clkR;
-        reset;
+        clkR; //load registers
+        rstSignals;
 
         shift_op = 2'b00;
         sel_A = 1'b0;
         sel_B = 1'b0;
         ALU_op = 3'b000;
-        #5;
-        check(5, datapath_out, 0, 1);
-        en_status = 1'b1;
-        clkR;
-        en_status = 1'b0;
+        en_status1 = 1'b1;
+        en_out1 = 1'b1;
+        clkR; //propagate datapath
+        rstSignals;
+        en_out2 = 1'b1;
+        en_status2 = 1'b1;
+        clkR; //load status reg 2
         check(32'd0, status_out, 0, 2);
+        check(5, datapath_out, 0, 1);
         //Conclusion: nothing changed in registers
 
         // Test 3 & 4 sel_A and sel_B == 1
@@ -184,39 +185,47 @@ module tb_datapath(output err);
         sel_B = 1'b1;
         imme_data = 32'd12;
         ALU_op = 3'b001;
-        #5;
+        en_out1 = 1'b1;
+        en_status1 = 1'b1;
+        clkR; //load status and out reg1
+        rstSignals;
+        en_out2 = 1'b1;
+        en_status2 = 1'b1;
+        clkR; //load status and out reg2
+        rstSignals;
         check(-32'sd12, datapath_out, 0, 3);
-        en_status = 1'b1;
-        clkR;
-        en_status = 1'b0;
         check(32'b10000000000000000000000000000000, status_out, 0, 4);
 
         //  Test 5 write back -12 into reg 0
         w_addr1 = 0;
         w_en1 = 1'b1;
-        clkR;
-        reset;
+        clkR; //write back
+        rstSignals;
 
-        shift_imme = 32'd0;
-        sel_shift = 1'b0;
         B_addr = 0;
         en_B = 1'b1;
+        shift_imme = 32'd0;
+        sel_shift = 1'b0;
         en_S = 1'b1;
         clkR;
-        reset;
+        rstSignals;
         sel_A = 1'b1;
         sel_B = 1'b0;
         shift_op = 2'b00;
         ALU_op = 3'b001;
         #5;
+        en_status1 = 1'b1;
+        en_out1 = 1'b1;
+        clkR; //load status and out reg1
+        rstSignals;
+        en_out2 = 1'b1;
+        en_status2 = 1'b1;
+        clkR; //load status and out reg2
         check(32'd12, datapath_out, 0, 5);
-        en_status = 1'b1;
-        clkR;
-        en_status = 1'b0;
         check(32'b00000000000000000000000000000000, status_out, 0, 6);
 
         // Test 6 & 7 post shift subtract and write back into reg 0
-        reset;
+        rstSignals;
 
         // -12 + 2 = -10 BUT change register 0 to 2*4 = 8
         A_addr = 0;
@@ -226,19 +235,27 @@ module tb_datapath(output err);
         shift_imme = 32'd2;
         sel_shift = 1'b0;
         en_S = 1'b1;
-        clkR;
-        reset;
+        clkR;   //load registers
+        rstSignals;
         shift_op = 2'b00;
         sel_A = 1'b0;
         sel_B = 1'b0;
         sel_post_shift = 1'b1;
         ALU_op = 3'b000;
         #5;
+        en_out1 = 1'b1;
+        en_status1 = 1'b1;
+        clkR; //load out 1
+        rstSignals;
+        en_out2 = 1'b1;
+        en_status2 = 1'b1;
+        clkR; //load out 2
+        rstSignals;
         check(-32'sd10, datapath_out, 0, 7);
         w_addr2 = 0;
         w_en2 = 1'b1;
-        clkR;
-        reset;
+        clkR; //write back
+        rstSignals;
 
         // Test 8 read from reg0 if it is 8
         B_addr = 0;
@@ -246,12 +263,20 @@ module tb_datapath(output err);
         sel_shift = 1'b0;
         shift_imme = 32'd0;
         en_S = 1'b1;
-        clkR;
-        reset;
+        clkR; //load registers
+        rstSignals;
         sel_A = 1'b1;
         sel_B = 1'b0;
         ALU_op = 3'b000;
         #5;
+        en_out1 = 1'b1;
+        en_status1 = 1'b1;
+        clkR; //load out 1
+        rstSignals;
+        en_out2 = 1'b1;
+        en_status2 = 1'b1;
+        clkR; //load out 2
+        rstSignals;
         check(32'd8, datapath_out, 0, 8);
 
         //Print test summary
