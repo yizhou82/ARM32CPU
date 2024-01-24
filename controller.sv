@@ -3,12 +3,13 @@ module controller(input clk, input rst_n,
                 input P, input U, input W,
                 output waiting, //no use yet
                 output w_en1, output w_en2, output sel_w_data, //regfile
-                output [1:0] sel_A_in, output [1:0] sel_B_in, output sel_shift_in, output sel_shift,    //forwarding muxes
+                output [1:0] sel_A_in, output [1:0] sel_B_in, output [1:0] sel_shift_in, output sel_shift,    //forwarding muxes
                 output en_A, output en_B, output en_C, output en_S,                                     //load regs stage
                 output sel_A, output sel_B, output sel_post_shift, output [2:0] ALU_op,                 //execute stage
+                output en_out1, output en_out2, output en_status1, output en_status2,                   //status reg
                 output load_ir,                     //instruction register
-                output load_pc, output clear_pc,    //program counter
-                output load_addr,                   //ram address selection
+                output load_pc, output [1:0] sel_pc,    //program counter
+                output sel_ram_addr2,                   //ram address selection
                 output [10:0] ram_addr1, output [10:0] ram_addr2, output ram_w_en1, output ram_w_en2); //ram 
 
     /*

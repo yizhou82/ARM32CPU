@@ -2,11 +2,11 @@ module datapath(input clk, input [31:0] ram_data2, input sel_w_data,
                 input [3:0] w_addr1, input w_en1, input [3:0] w_addr2, input w_en2,
                 input [3:0] A_addr, input [3:0] B_addr, input [3:0] shift_addr,                     //end of regfile inputs
                 input [31:0] PC, input [1:0] sel_A_in, input [1:0] sel_B_in, input [1:0] sel_shift_in,    //inputs for forwarding muxes
-                input en_A, input en_B, input en_out1, input en_out2, input [31:0] shift_imme, input sel_shift,
+                input en_A, input en_B, input [31:0] shift_imme, input sel_shift,
                 input [1:0] shift_op, input en_S,
                 input sel_A, input sel_B, input sel_post_shift, input [31:0] imme_data,
-                input [2:0] ALU_op, input en_status1, input en_status2,                                                //datapath inputs
-                output [31:0] datapath_out, output [31:0] memory_out, output [31:0] status_out);
+                input [2:0] ALU_op, input en_out1, input en_out2, input en_status1, input en_status2,                                                //datapath inputs
+                output [31:0] datapath_out, output [10:0] memory_out, output [31:0] status_out);
   
     // --- internal wires ---
     //regfile
