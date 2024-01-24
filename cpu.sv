@@ -1,5 +1,5 @@
 module cpu (input clk, input rst_n, input [31:0] instr, input [31:0] ram_data2, input [31:0] PC,
-            output waiting, output [1:0] sel_pc, output [10:0] memory_out, 
+            output waiting, output [1:0] sel_pc, output [10:0] memory_out, output sel_ram_addr2,
             output ram_w_en1, output ram_w_en2, output [10:0] ram_addr1, output [10:0] ram_addr2, output [31:0] ram_in2,
             output [31:0] status_out, output [31:0] datapath_out);
 
@@ -38,11 +38,12 @@ module cpu (input clk, input rst_n, input [31:0] instr, input [31:0] ram_data2, 
     wire en_out1, en_out2, en_status1, en_status2;
     wire load_ir, load_pc;
     wire [1:0] sel_pc_ctrl;
-    wire sel_ram_addr2;
+    wire sel_ram_addr2_ctrl;
     wire [10:0] ram_addr1_ctrl, ram_addr2_ctrl;
     wire ram_w_en1_ctrl, ram_w_en2_ctrl;
     assign waiting = waiting_ctrl;
     assign sel_pc = sel_pc_ctrl;
+    assign sel_ram_addr2 = sel_ram_addr2_ctrl;
     assign ram_w_en1 = ram_w_en1_ctrl;
     assign ram_w_en2 = ram_w_en2_ctrl;
     assign ram_addr1 = 32'd0;
@@ -135,7 +136,7 @@ module cpu (input clk, input rst_n, input [31:0] instr, input [31:0] ram_data2, 
         .load_ir(load_ir),
         .load_pc(load_pc),
         .sel_pc(sel_pc_ctrl),
-        .sel_ram_addr2(sel_ram_addr2),
+        .sel_ram_addr2(sel_ram_addr2_ctrl),
         .ram_addr1(ram_addr1_ctrl),
         .ram_addr2(ram_addr2_ctrl),
         .ram_w_en1(ram_w_en1_ctrl),
