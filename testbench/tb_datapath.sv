@@ -9,7 +9,7 @@ module tb_datapath(output err);
     reg [1:0] shift_op, sel_A_in, sel_B_in, sel_shift_in;
     reg sel_A, sel_B, sel_shift, sel_post_shift;
     reg [2:0] ALU_op;
-    wire [31:0] status_out, datapath_out;
+    wire [31:0] status_out, datapath_out, memory_out;
     integer error_count = 0;
 
     // tasks
@@ -100,6 +100,7 @@ module tb_datapath(output err);
         .en_status1(en_status1),
         .en_status2(en_status2),
         .datapath_out(datapath_out),
+        .memory_out(memory_out),
         .status_out(status_out)
     );
 
@@ -187,7 +188,9 @@ module tb_datapath(output err);
         ALU_op = 3'b001;
         en_out1 = 1'b1;
         en_status1 = 1'b1;
-        clkR; //load status and out reg1
+        w_addr1 = 0;
+        w_en1 = 1'b1;
+        clkR; //load status and out reg1 + write back
         rstSignals;
         en_out2 = 1'b1;
         en_status2 = 1'b1;
@@ -197,11 +200,6 @@ module tb_datapath(output err);
         check(32'b10000000000000000000000000000000, status_out, 0, 4);
 
         //  Test 5 write back -12 into reg 0
-        w_addr1 = 0;
-        w_en1 = 1'b1;
-        clkR; //write back
-        rstSignals;
-
         B_addr = 0;
         en_B = 1'b1;
         shift_imme = 32'd0;
@@ -245,6 +243,8 @@ module tb_datapath(output err);
         #5;
         en_out1 = 1'b1;
         en_status1 = 1'b1;
+        w_addr2 = 0;
+        w_en2 = 1'b1;
         clkR; //load out 1
         rstSignals;
         en_out2 = 1'b1;
@@ -252,10 +252,6 @@ module tb_datapath(output err);
         clkR; //load out 2
         rstSignals;
         check(-32'sd10, datapath_out, 0, 7);
-        w_addr2 = 0;
-        w_en2 = 1'b1;
-        clkR; //write back
-        rstSignals;
 
         // Test 8 read from reg0 if it is 8
         B_addr = 0;

@@ -6,7 +6,7 @@ module datapath(input clk, input [31:0] ram_data2, input sel_w_data,
                 input [1:0] shift_op, input en_S,
                 input sel_A, input sel_B, input sel_post_shift, input [31:0] imme_data,
                 input [2:0] ALU_op, input en_status1, input en_status2,                                                //datapath inputs
-                output [31:0] datapath_out, output [31:0] status_out);
+                output [31:0] datapath_out, output [31:0] memory_out, output [31:0] status_out);
   
     // --- internal wires ---
     //regfile
@@ -24,6 +24,7 @@ module datapath(input clk, input [31:0] ram_data2, input sel_w_data,
     // internal connections
     assign status_out = status2_reg;
     assign datapath_out = out2_reg;
+    assign memory_out = ALU_out;
 
     //internal modules
     regfile regfile(.w_data1(w_data1), .w_addr1(w_addr1), .w_en1(w_en1), .w_data2(val_B_in),
@@ -33,7 +34,7 @@ module datapath(input clk, input [31:0] ram_data2, input sel_w_data,
     ALU alu(.val_A(val_A), .val_B(val_B), .ALU_op(ALU_op), .ALU_out(ALU_out), .flags(status_in));
 
     //muxes
-    assign w_data1 = (sel_w_data == 1'b1) ? ram_data2 : out2_reg;
+    assign w_data1 = (sel_w_data == 1'b1) ? ram_data2 : ALU_out;
     assign val_A = (sel_A == 1'b1) ? 31'b0 : A_reg;
     assign val_B_in = (sel_B == 1'b1) ? imme_data : shift_out; 
     assign shift_amt = (sel_shift == 1'b1) ? shift_data: shift_imme;
