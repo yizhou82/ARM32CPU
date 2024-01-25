@@ -26,14 +26,15 @@ module controller(input clk, input rst_n,
     // localparam for states
 
     //move all the local param values 1 value higher
-    localparam [2:0] reset = 3'd0;
-    localparam [2:0] fetch = 3'd1;
-    localparam [2:0] fetch_wait = 3'd2;
-    localparam [2:0] decode = 3'd3;
-    localparam [2:0] execute = 3'd4;
-    localparam [2:0] memory = 3'd5;
-    localparam [2:0] memory_wait = 3'd6;
-    localparam [2:0] write_back = 3'd7;
+    localparam [3:0] reset = 3'd0;
+    localparam [3:0] load_pc_state = 3'd1;
+    localparam [3:0] fetch = 3'd2;
+    localparam [3:0] fetch_wait = 3'd3;
+    localparam [3:0] decode = 3'd4;
+    localparam [3:0] execute = 3'd5;
+    localparam [3:0] memory = 3'd6;
+    localparam [3:0] memory_wait = 3'd7;
+    localparam [3:0] write_back = 3'd8;
 
     // localparam for specific instructions
     localparam [6:0] NOP = 7'b0000000;
@@ -49,7 +50,7 @@ module controller(input clk, input rst_n,
     localparam [2:0] XOR = 3'b111;
 
     // reg for state
-    reg [2:0] state;
+    reg [3:0] state;
     reg start = 1'b0;
 
     // reg for output
@@ -111,6 +112,9 @@ module controller(input clk, input rst_n,
         end else begin
             case (state)
                 reset: begin
+                    state <= load_pc_state;
+                end
+                load_pc_state: begin
                     state <= fetch;
                 end
                 fetch: begin
@@ -175,9 +179,12 @@ module controller(input clk, input rst_n,
                 waiting_reg = 1'b1;
                 clear_pc_reg <= 1'b1;
             end
-            fetch: begin        //fetch from ram
+            load_pc_state: begin
                 waiting_reg = 1'b1;
                 load_pc_reg = 1'b1;
+            end
+            fetch: begin            //fetch from ram
+                waiting_reg = 1'b1;
             end
             fetch_wait: begin
                 waiting_reg = 1'b1;

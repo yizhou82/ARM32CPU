@@ -1,12 +1,12 @@
-module datapath(input clk, input [31:0] ram_data2, input sel_w_data,
+module datapath(input clk, input [31:0] ram_data2, input forward_w_data,
                 input [3:0] w_addr1, input w_en1, input [3:0] w_addr2, input w_en2,
                 input [3:0] A_addr, input [3:0] B_addr, input [3:0] shift_addr,                     //end of regfile inputs
                 input [31:0] PC, input [1:0] sel_A_in, input [1:0] sel_B_in, input [1:0] sel_shift_in,    //inputs for forwarding muxes
                 input en_A, input en_B, input [31:0] shift_imme, input sel_shift,
                 input [1:0] shift_op, input en_S,
                 input sel_A, input sel_B, input sel_post_shift, input [31:0] imme_data,
-                input [2:0] ALU_op, input en_out1, input en_out2, input en_status1, input en_status2,                                                //datapath inputs
-                output [31:0] datapath_out, output [10:0] memory_out, output [31:0] status_out);
+                input [2:0] ALU_op, input en_status,                                                //datapath inputs
+                output [31:0] datapath_out, output [31:0] status_out);
   
     // --- internal wires ---
     //regfile
@@ -19,12 +19,11 @@ module datapath(input clk, input [31:0] ram_data2, input sel_w_data,
     reg [31:0] A_in, B_in, shift_in;
 
     // --- internal regs ---
-    reg [31:0] A_reg, B_reg, out1_reg, out2_reg, S_reg, status1_reg, status2_reg;
+    reg [31:0] A_reg, B_reg, S_reg, status_reg;
 
     // internal connections
-    assign status_out = status2_reg;
-    assign datapath_out = out2_reg;
-    assign memory_out = ALU_out;
+    assign status_out = status_reg;
+    assign datapath_out = ALU_out;
 
     //internal modules
     regfile regfile(.w_data1(w_data1), .w_addr1(w_addr1), .w_en1(w_en1), .w_data2(val_B_in),
@@ -34,7 +33,7 @@ module datapath(input clk, input [31:0] ram_data2, input sel_w_data,
     ALU alu(.val_A(val_A), .val_B(val_B), .ALU_op(ALU_op), .ALU_out(ALU_out), .flags(status_in));
 
     //muxes
-    assign w_data1 = (sel_w_data == 1'b1) ? ram_data2 : ALU_out;
+    assign w_data1 = (forward_w_data == 1'b1) ? ram_data2 : ALU_out;
     assign val_A = (sel_A == 1'b1) ? 31'b0 : A_reg;
     assign val_B_in = (sel_B == 1'b1) ? imme_data : shift_out; 
     assign shift_amt = (sel_shift == 1'b1) ? shift_data: shift_imme;
@@ -88,31 +87,10 @@ module datapath(input clk, input [31:0] ram_data2, input sel_w_data,
         end
     end
 
-    //register out1
+    //register status
     always_ff @(posedge clk) begin
-        if (en_out1 == 1'b1) begin
-            out1_reg <= ALU_out;
-        end
-    end
-
-    //register out2
-    always_ff @(posedge clk) begin
-        if (en_out2 == 1'b1) begin
-            out2_reg <= out1_reg;
-        end
-    end
-
-    //register status1
-    always_ff @(posedge clk) begin
-        if (en_status1 == 1'b1) begin
-            status1_reg <= status_in;
-        end
-    end
-
-    //register status2
-    always_ff @(posedge clk) begin
-        if (en_status2 == 1'b1) begin
-            status2_reg <= status1_reg;
+        if (en_status == 1'b1) begin
+            status_reg <= status_in;
         end
     end
 endmodule: datapath
