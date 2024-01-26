@@ -2,14 +2,14 @@ module tb_datapath(output err);
     // your implementation here
 
     //regs for testbench
-    reg [31:0] imme_data, shift_imme, PC, w_data1, w_data2, ram_data2;
-    reg [3:0] w_addr1, w_addr2, A_addr, B_addr, shift_addr;
-    reg w_en1, w_en2, clk, forward_w_data;
+    reg [31:0] imme_data, shift_imme, PC, w_data1, w_data3, ram_data2;
+    reg [3:0] w_addr1, w_addr2, w_addr3, A_addr, B_addr, shift_addr, str_addr;
+    reg w_en1, w_en2, w_en3, clk, forward_w_data;
     reg en_A, en_B, en_S, en_status;
     reg [1:0] shift_op, sel_A_in, sel_B_in, sel_shift_in;
     reg sel_A, sel_B, sel_shift, sel_post_shift;
     reg [2:0] ALU_op;
-    wire [31:0] status_out, datapath_out;
+    wire [31:0] status_out, datapath_out, str_data;
     integer error_count = 0;
 
     // tasks
@@ -74,9 +74,13 @@ module tb_datapath(output err);
         .w_en1(w_en1),
         .w_addr2(w_addr2),
         .w_en2(w_en2),
+        .w_addr3(w_addr3),
+        .w_en3(w_en3),
+        .w_data3(w_data3),
         .A_addr(A_addr),
         .B_addr(B_addr),
         .shift_addr(shift_addr),
+        .str_addr(str_addr),
         .PC(PC),
         .sel_A_in(sel_A_in),
         .sel_B_in(sel_B_in),
@@ -94,7 +98,8 @@ module tb_datapath(output err);
         .ALU_op(ALU_op),
         .en_status(en_status),
         .datapath_out(datapath_out),
-        .status_out(status_out)
+        .status_out(status_out),
+        .str_data(str_data)
     );
 
     integer i = 0;  

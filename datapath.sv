@@ -1,12 +1,12 @@
 module datapath(input clk, input [31:0] ram_data2, input forward_w_data,
-                input [3:0] w_addr1, input w_en1, input [3:0] w_addr2, input w_en2,
-                input [3:0] A_addr, input [3:0] B_addr, input [3:0] shift_addr,                     //end of regfile inputs
+                input [3:0] w_addr1, input w_en1, input [3:0] w_addr2, input w_en2, input [3:0] w_addr3, input w_en3, //regfile write inputs
+                input [31:0] w_data3, input [3:0] A_addr, input [3:0] B_addr, input [3:0] shift_addr, input [3:0] str_addr,                    //end of regfile inputs
                 input [31:0] PC, input [1:0] sel_A_in, input [1:0] sel_B_in, input [1:0] sel_shift_in,    //inputs for forwarding muxes
                 input en_A, input en_B, input [31:0] shift_imme, input sel_shift,
                 input [1:0] shift_op, input en_S,
                 input sel_A, input sel_B, input sel_post_shift, input [31:0] imme_data,
                 input [2:0] ALU_op, input en_status,                                                //datapath inputs
-                output [31:0] datapath_out, output [31:0] status_out);
+                output [31:0] datapath_out, output [31:0] status_out, output [31:0] str_data);      //datapath outputs
   
     // --- internal wires ---
     //regfile
@@ -26,9 +26,10 @@ module datapath(input clk, input [31:0] ram_data2, input forward_w_data,
     assign datapath_out = ALU_out;
 
     //internal modules
-    regfile regfile(.w_data1(w_data1), .w_addr1(w_addr1), .w_en1(w_en1), .w_data2(val_B_in),
-                    .w_addr2(w_addr2), .w_en2(w_en2), .clk(clk), .A_addr(A_addr), .B_addr(B_addr),
-                    .shift_addr(shift_addr), .A_data(A_data), .B_data(B_data), .shift_data(shift_data));
+    regfile regfile(.clk(clk), .w_data1(w_data1), .w_addr1(w_addr1), .w_en1(w_en1), .w_data2(val_B_in),
+                    .w_addr2(w_addr2), .w_en2(w_en2), .w_data3(w_data3), .w_addr3(w_addr3), .w_en3(w_en3), 
+                    .A_addr(A_addr), .B_addr(B_addr), .shift_addr(shift_addr), .str_addr(str_addr),
+                    .A_data(A_data), .B_data(B_data), .shift_data(shift_data), .str_data(str_data));
     shifter shifter(.shift_in(B_reg), .shift_op(shift_op), .shift_amt(S_reg), .shift_out(shift_out));
     ALU alu(.val_A(val_A), .val_B(val_B), .ALU_op(ALU_op), .ALU_out(ALU_out), .flags(status_in));
 
