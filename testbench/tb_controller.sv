@@ -9,7 +9,7 @@ module tb_controller(output err);
     reg P, U, W;
 
     wire waiting;
-    wire w_en1, w_en2, sel_w_data;
+    wire w_en1, w_en2, w_en3, sel_w_data;
     wire [1:0] sel_A_in, sel_B_in, sel_shift_in;
     wire sel_shift;
     wire en_A, en_B, en_C, en_S;
@@ -37,6 +37,7 @@ module tb_controller(output err);
         .waiting(waiting),
         .w_en1(w_en1),
         .w_en2(w_en2),
+        .w_en3(w_en3),
         .sel_w_data(sel_w_data),
         .sel_A_in(sel_A_in),
         .sel_B_in(sel_B_in),
@@ -57,7 +58,6 @@ module tb_controller(output err);
         .load_ir(load_ir),
         .load_pc(load_pc),
         .sel_pc(sel_pc),
-        .sel_ram_addr2(sel_ram_addr2),
         .ram_addr1(ram_addr1),
         .ram_addr2(ram_addr2),
         .ram_w_en1(ram_w_en1),
@@ -70,8 +70,6 @@ module tb_controller(output err);
             if (expected !== actual) begin
                 $error("Test %d failed. Expected: %b, Actual: %b", test_num, expected, actual);
                 error_count = error_count + 1;
-            end else begin
-                $display("Test %d passed.", test_num);
             end
         end
     endtask: check
@@ -98,6 +96,8 @@ module tb_controller(output err);
 
     task reset;
         begin
+            #5;
+            clk = 1'b0;
             rst_n = 1'b1;
             #5;
             rst_n = 1'b0;
@@ -106,7 +106,7 @@ module tb_controller(output err);
         end
     endtask: reset
 
-    task  first3Cycles(input integer startTestNum);
+    task  first4Cycles(input integer startTestNum);
         begin
             reset;
             zeroInputs;
@@ -120,29 +120,52 @@ module tb_controller(output err);
             clkR; // fetch 2
             check(1, waiting, startTestNum + 4);
             check(1, load_ir, startTestNum + 5);
+            clkR; // decode
         end
-    endtask: first3Cycles
+    endtask: first4Cycles
 
     task executeCycle_MOV_I(input integer startTestNum); //+
         clkR; // execute instruction
         check(0, sel_A_in, startTestNum);
         check(0, sel_B_in, startTestNum + 1);
-        check(2'b11, sel_shift_in, startTestNum + 2);
+        check(2'b00, sel_shift_in, startTestNum + 2);
         check(0, en_A, startTestNum + 3);
         check(0, en_B, startTestNum + 4);
+        check(0, en_S, startTestNum + 5);
+        check(0, sel_shift, startTestNum + 6);
+    endtask: executeCycle_MOV_I
+
+    task executeCycle_MOV_R(input integer startTestNum); //+
+        clkR; // execute instruction
+        check(0, sel_A_in, startTestNum);
+        check(0, sel_B_in, startTestNum + 1);
+        check(0, sel_shift_in, startTestNum + 2);
+        check(0, en_A, startTestNum + 3);
+        check(1, en_B, startTestNum + 4);
+        check(1, en_S, startTestNum + 5);
+        check(0, sel_shift, startTestNum + 6);
+    endtask: executeCycle_MOV_R
+
+    task executeCycle_MOV_RS(input integer startTestNum); //+
+        clkR; // execute instruction
+        check(0, sel_A_in, startTestNum);
+        check(0, sel_B_in, startTestNum + 1);
+        check(0, sel_shift_in, startTestNum + 2);
+        check(0, en_A, startTestNum + 3);
+        check(1, en_B, startTestNum + 4);
         check(1, en_S, startTestNum + 5);
         check(1, sel_shift, startTestNum + 6);
-    endtask: executeCycle_MOV_I
+    endtask: executeCycle_MOV_RS
 
     task executeCycle_I(input integer startTestNum); //+
         clkR; // execute instruction
         check(0, sel_A_in, startTestNum);
         check(0, sel_B_in, startTestNum + 1);
-        check(2'b11, sel_shift_in, startTestNum + 2);
-        check(0, en_A, startTestNum + 3);
-        check(1, en_B, startTestNum + 4);
-        check(1, en_S, startTestNum + 5);
-        check(1, sel_shift, startTestNum + 6);
+        check(0, sel_shift_in, startTestNum + 2);
+        check(1, en_A, startTestNum + 3);
+        check(0, en_B, startTestNum + 4);
+        check(0, en_S, startTestNum + 5);
+        check(0, sel_shift, startTestNum + 6);
     endtask: executeCycle_I
 
     task executeCycle_R(input integer startTestNum);
@@ -178,11 +201,7 @@ module tb_controller(output err);
 
         check(0, sel_B_in, startTestNum + 1);
 
-        if (mode == 2) begin
-            check(0, sel_shift_in, startTestNum + 2);
-        end else begin
-            check(2'b11, sel_shift_in, startTestNum + 2);
-        end
+        check(0, sel_shift_in, startTestNum + 2);
 
         check(1, en_A, startTestNum + 3);
 
@@ -192,12 +211,17 @@ module tb_controller(output err);
             check(0, en_B, startTestNum + 4);
         end
 
-        check(1, en_S, startTestNum + 5);
+        if (mode == 2) begin
+            check(1, en_S, startTestNum + 5);
+        end else begin
+            check(0, en_S, startTestNum + 5);
+        end
+        
 
         if (mode == 2) begin
-            check(0, sel_shift, startTestNum + 6);
+            check(1, sel_shift, startTestNum + 6);
         end else begin
-            check(1, sel_shift, startTestNum + 6);  //dont shift by anything
+            check(0, sel_shift, startTestNum + 6);  //dont shift by anything
         end
     endtask: executeCycle_LDR_STR
 
@@ -210,6 +234,16 @@ module tb_controller(output err);
         check(0, sel_w_data, startTestNum + 4);
         check(1, w_en1, startTestNum + 5);
     endtask: mem_writeback_MOV_I
+
+    task mem_writeback_MOV_R_RS(input integer startTestNum, input [2:0] ALU_op_ans);
+        clkR; // mem 1 + write back
+        check(1, sel_A, startTestNum);
+        check(0, sel_B, startTestNum + 1);
+        check(0, sel_post_shift, startTestNum + 2);
+        check(ALU_op_ans, ALU_op, startTestNum + 3);
+        check(0, sel_w_data, startTestNum + 4);
+        check(1, w_en1, startTestNum + 5);
+    endtask: mem_writeback_MOV_R_RS
 
     task mem_writeback_I(input integer startTestNum, input [2:0] ALU_op_ans);
         clkR; // mem 1 + write back
@@ -265,75 +299,69 @@ module tb_controller(output err);
 
     task mem_wait(input integer startTestNum);
         clkR; // mem 2
-    endtask: mem_wait_normal_STR
+    endtask: mem_wait
 
     task write_back_LDR(input integer startTestNum);
         clkR; // mem 2
         check(1, w_en3, startTestNum);
-    endtask: mem_wait_LDR
+    endtask: write_back_LDR
 
     initial begin
         // Test 1: ADD_R reg0 + reg1 to reg 2
-        first3Cycles(0);
+        first4Cycles(0);
         opcode = 7'b0011000;
         cond = 4'b1110;
-        clkR; // execute instruction
-        executeCycle_R(6);
-        clkR; // mem 1 + write back
-        check(1, sel_A, 12);
-        check(0, sel_B, 13);
-        check(0, sel_post_shift, 14);
-        check(0, ALU_op, 15);
-        check(1, en_out1, 16);
-        check(0, en_status1, 17);
-        check(0, sel_w_data, 18);
-        check(1, w_en1, 19);
-        clkR; // mem 2
-        check(1, en_out2, 20);
+        executeCycle_R(7);
+        mem_writeback_R_RS(14, 3'b000);
+        mem_wait(20);
 
         // Test 2: Mov_R reg0 divide by 2 to reg 1
-        first3Cycles(21);
-        opcode = 7'b0001000;
+        first4Cycles(14);
+        opcode = 7'b0010000;
         cond = 4'b1110;
-        clkR; // execute instruction
-        check(0, sel_A_in, 22);
-
-
-        clkR; // fetch
-        check(1, load_ir, 5);
-        check(1, waiting, 6);
-        check(0, sel_shift, 7);
-        clkR; // execute instruction
-        check(1, sel_A, 8);
-        check(0, sel_B, 9);
-        check(0, en_A, 22);
-        check(1, en_B, 23);
-        check(3'b000, ALU_op, 10);
-        clkR; // write back
-        check(1, w_en, 11);
-        check(0, wb_sel, 12);
+        executeCycle_MOV_R(21);
+        mem_writeback_MOV_R_RS(28, 3'b000);
+        mem_wait(34);
 
         // Test 3: SUB_RS 1 to reg 1
-        reset;
-        opcode = 7'b0100001;
-        rd = 4'd1;
-        rn = 4'd1;
-        rm = 4'd0;
-        rs = 4'd0;
-        cond = 4'd0;
-        en_status = 1'b0;
-        clkR; // fetch
-        check(1, load_ir, 13);
-        check(1, waiting, 14);
-        clkR; // execute instruction
-        check(0, sel_A, 15);
-        check(0, sel_B, 16);
-        check(1, en_A, 24);
-        check(1, en_B, 25);
-        check(3'b001, ALU_op, 17);
-        clkR; // write back
-        check(1, w_en, 18);
-        check(0, wb_sel, 19);
+        first4Cycles(34);
+        opcode = 7'b0111001;
+        cond = 4'b1110;
+        executeCycle_RS(41);
+        mem_writeback_R_RS(48, 3'b001);
+        mem_wait(54);
+
+        // Test 4: LDR_LIT with P == 0, U ==1
+        first4Cycles(54);
+        opcode = 7'b1000010;
+        cond = 4'b1110;
+        P = 1'b0;
+        U = 1'b1;
+        executeCycle_LDR_STR(61, 1);
+        mem_writeback_STR_LDR(68, 0, 1, 1, 0);
+        mem_wait(74);
+        write_back_LDR(74);
+
+        // Test 5: LDR_I with P == 1, U == 0
+        first4Cycles(75);
+        opcode = 7'b1100100;
+        cond = 4'b1110;
+        P = 1'b1;
+        U = 1'b0;
+        executeCycle_LDR_STR(82, 0);
+        mem_writeback_STR_LDR(89, 1, 0, 0, 0);
+        mem_wait(95);
+        write_back_LDR(95);
+
+        //Test 6: STR_R with P == 1, U == 1
+        first4Cycles(96);
+        opcode = 7'b1111110;
+        cond = 4'b1110;
+        P = 1'b1;
+        U = 1'b1;
+        executeCycle_LDR_STR(103, 2);
+        mem_writeback_STR_LDR(110, 1, 1, 2, 1);
+        mem_wait(116);
 
         //print test summary
         if (error_count == 0) begin
