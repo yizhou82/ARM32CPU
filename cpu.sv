@@ -39,7 +39,7 @@ module cpu (input clk, input rst_n, input [31:0] instr, input [31:0] ram_data2, 
     wire en_A, en_B, en_C, en_S;
     wire sel_A, sel_B, sel_post_shift;
     wire [2:0] ALU_op;
-    wire en_status;
+    wire en_status, status_rdy_ctrl;
     wire load_ir, load_pc_ctrl;
     wire [1:0] sel_pc_ctrl;
     wire [10:0] ram_addr1_ctrl, ram_addr2_ctrl;
@@ -101,6 +101,7 @@ module cpu (input clk, input rst_n, input [31:0] instr, input [31:0] ram_data2, 
         .imme_data({20'd0, imm12}),
         .ALU_op(ALU_op),
         .en_status(en_status),
+        .status_rdy(status_rdy_ctrl),
         .datapath_out(datapath_out_dp),
         .status_out(status_out_dp),
         .str_data(str_data_dp)
@@ -135,6 +136,7 @@ module cpu (input clk, input rst_n, input [31:0] instr, input [31:0] ram_data2, 
         .sel_post_shift(sel_post_shift),
         .ALU_op(ALU_op),
         .en_status(en_status),
+        .status_rdy(status_rdy_ctrl),
         .load_ir(load_ir),
         .load_pc(load_pc_ctrl),
         .sel_pc(sel_pc_ctrl),

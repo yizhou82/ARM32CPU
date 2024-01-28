@@ -5,7 +5,7 @@ module datapath(input clk, input [31:0] ram_data2, input forward_w_data,
                 input en_A, input en_B, input [31:0] shift_imme, input sel_shift,
                 input [1:0] shift_op, input en_S,
                 input sel_A, input sel_B, input sel_post_shift, input [31:0] imme_data,
-                input [2:0] ALU_op, input en_status,                                                //datapath inputs
+                input [2:0] ALU_op, input en_status, input status_rdy,                                                //datapath inputs
                 output [31:0] datapath_out, output [31:0] status_out, output [31:0] str_data);      //datapath outputs
   
     // --- internal wires ---
@@ -19,11 +19,11 @@ module datapath(input clk, input [31:0] ram_data2, input forward_w_data,
     reg [31:0] A_in, B_in, shift_in;
 
     // --- internal regs ---
-    reg [31:0] A_reg, B_reg, S_reg, status_reg;
+    reg [31:0] A_reg, B_reg, S_reg, status_out_reg;
 
     // internal connections
-    assign status_out = status_in;
     assign datapath_out = ALU_out;
+    assign status_out = status_out_reg;
 
     //internal modules
     regfile regfile(.clk(clk), .w_data1(w_data1), .w_addr1(w_addr1), .w_en1(w_en1), .w_data2(val_B_in),
@@ -32,6 +32,7 @@ module datapath(input clk, input [31:0] ram_data2, input forward_w_data,
                     .A_data(A_data), .B_data(B_data), .shift_data(shift_data), .str_data(str_data));
     shifter shifter(.shift_in(B_reg), .shift_op(shift_op), .shift_amt(S_reg), .shift_out(shift_out));
     ALU alu(.val_A(val_A), .val_B(val_B), .ALU_op(ALU_op), .ALU_out(ALU_out), .flags(status_in));
+    status_reg_block status_reg(.clk(clk), .en_status(en_status), .status_rdy(status_rdy), .status_in(status_in), .status_out(status_out_reg));
 
     //muxes
     assign w_data1 = (forward_w_data == 1'b1) ? ram_data2 : ALU_out;
@@ -85,13 +86,6 @@ module datapath(input clk, input [31:0] ram_data2, input forward_w_data,
     always_ff @(posedge clk) begin
         if (en_S == 1'b1) begin
             S_reg <= shift_amt;
-        end
-    end
-
-    //register status
-    always_ff @(posedge clk) begin
-        if (en_status == 1'b1) begin
-            status_reg <= status_in;
         end
     end
 endmodule: datapath

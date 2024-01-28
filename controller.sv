@@ -6,7 +6,7 @@ module controller(input clk, input rst_n,
                 output [1:0] sel_A_in, output [1:0] sel_B_in, output [1:0] sel_shift_in, output sel_shift,      //forwarding muxes
                 output en_A, output en_B, output en_C, output en_S,                                             //load regs stage
                 output sel_A, output sel_B, output sel_post_shift, output [2:0] ALU_op,                         //execute stage
-                output en_status,                                                                               //status reg
+                output en_status, output status_rdy,                                                                             //status reg
                 output load_ir,                                                                                 //instruction register
                 output load_pc, output [1:0] sel_pc,                                                            //program counter
                 output ram_w_en1, output ram_w_en2);                                                            //ram 
@@ -73,6 +73,7 @@ module controller(input clk, input rst_n,
     reg sel_post_shift_reg;
     reg [2:0] ALU_op_reg;
     reg en_status_reg;
+    reg status_rdy_reg;
     reg load_ir_reg;
     reg load_pc_reg;
     reg sel_pc_reg;
@@ -102,6 +103,7 @@ module controller(input clk, input rst_n,
     assign sel_post_shift = sel_post_shift_reg;
     assign ALU_op = ALU_op_reg;
     assign en_status = en_status_reg;
+    assign status_rdy = status_rdy_reg;
     assign load_ir = load_ir_reg;
     assign load_pc = load_pc_reg;
     assign sel_pc = sel_pc_reg;
@@ -176,6 +178,7 @@ module controller(input clk, input rst_n,
         sel_post_shift_reg = 1'b0;
         ALU_op_reg = 3'b000;
         en_status_reg = 1'b0;
+        status_rdy_reg = 1'b0;
         load_ir_reg = 1'b0;
         load_pc_reg = 1'b0;
         load_addr_reg = 1'b0;
@@ -394,6 +397,7 @@ module controller(input clk, input rst_n,
             end
             memory_wait: begin
                 waiting_reg = 1'b1;
+                status_rdy_reg = 1'b1;
                 //just a stall for LDR to read from memory
             end
             write_back: begin
