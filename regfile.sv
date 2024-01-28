@@ -34,26 +34,26 @@ module regfile(input clk, input [31:0] w_data1, input [3:0] w_addr1, input w_en1
     R16 - Status Register (SR)
     */
 
-    reg [31:0] regsiteres[0:15];
+    reg [31:0] registeres[0:15];
 
     // read is combinational
-    assign A_data = regsiteres[A_addr];
-    assign B_data = regsiteres[B_addr];
-    assign shift_data = regsiteres[shift_addr];
-    assign str_data = regsiteres[str_addr];
+    assign A_data = registeres[A_addr];
+    assign B_data = registeres[B_addr];
+    assign shift_data = registeres[shift_addr];
+    assign str_data = registeres[str_addr];
 
     // write is sequential
     always_ff @(posedge clk) begin
         if (w_en1 == 1'b1) begin
-            regsiteres[w_addr1] = w_data1;
+            registeres[w_addr1] = w_data1;
         end
 
         if (w_en2 == 1'b1) begin
-            regsiteres[w_addr2] = w_data2;
+            registeres[w_addr2] = w_data2;
         end
 
         if (w_en3 == 1'b1) begin
-            regsiteres[w_addr3] = w_data3;
+            registeres[w_addr3] = w_data3;
         end
     end
 endmodule: regfile
