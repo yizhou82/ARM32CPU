@@ -204,10 +204,10 @@ module controller(input clk, input rst_n,
             end
             fetch_wait: begin
                 waiting_reg = 1'b1;
-                load_ir_reg = 1'b1;
             end
             decode: begin
                 waiting_reg = 1'b1;
+                load_ir_reg = 1'b1;
             end
             execute: begin
                 waiting_reg = 1'b1;
