@@ -2,14 +2,14 @@ module controller(input clk, input rst_n,
                 input [6:0] opcode, input [31:0] status_reg, input [3:0] cond,
                 input P, input U, input W, input en_status_decode,
                 output waiting,                                                                                 //no use yet
-                output w_en1, output w_en2, output w_en3, output forward_w_data,                                    //regfile
+                output w_en1, output w_en2, output w_en3, output forward_w_data,                                //regfile
                 output [1:0] sel_A_in, output [1:0] sel_B_in, output [1:0] sel_shift_in, output sel_shift,      //forwarding muxes
                 output en_A, output en_B, output en_C, output en_S,                                             //load regs stage
                 output sel_A, output sel_B, output sel_post_shift, output [2:0] ALU_op,                         //execute stage
-                output en_status,                           //status reg
+                output en_status,                                                                               //status reg
                 output load_ir,                                                                                 //instruction register
                 output load_pc, output [1:0] sel_pc,                                                            //program counter
-                output ram_w_en1, output ram_w_en2);          //ram 
+                output ram_w_en1, output ram_w_en2);                                                            //ram 
 
     /*
 
@@ -26,7 +26,7 @@ module controller(input clk, input rst_n,
 
     //move all the local param values 1 value higher
     localparam [3:0] reset = 4'd0;
-    localparam [3:0] load_pc_state = 4'd1;
+    localparam [3:0] load_pc_loop = 4'd1;
     localparam [3:0] fetch = 4'd2;
     localparam [3:0] fetch_wait = 4'd3;
     localparam [3:0] decode = 4'd4;
@@ -34,6 +34,7 @@ module controller(input clk, input rst_n,
     localparam [3:0] memory = 4'd6;
     localparam [3:0] memory_wait = 4'd7;
     localparam [3:0] write_back = 4'd8;
+    localparam [3:0] load_pc_start = 4'd9;
 
     // localparam for specific instructions
     localparam [6:0] NOP = 7'b0000000;
@@ -116,9 +117,12 @@ module controller(input clk, input rst_n,
         end else begin
             case (state)
                 reset: begin
-                    state <= load_pc_state;
+                    state <= load_pc_start;
                 end
-                load_pc_state: begin
+                load_pc_start: begin
+                    state <= fetch;
+                end
+                load_pc_loop: begin
                     state <= fetch;
                 end
                 fetch: begin
@@ -140,7 +144,7 @@ module controller(input clk, input rst_n,
                     state <= write_back;
                 end
                 write_back: begin
-                    state <= load_pc_state;
+                    state <= load_pc_loop;
                     start <= 1'b0; //end of cycle
                 end
                 default: begin
@@ -185,10 +189,15 @@ module controller(input clk, input rst_n,
             reset: begin
                 waiting_reg = 1'b1;
             end
-            load_pc_state: begin
+            load_pc_start: begin
                 waiting_reg = 1'b1;
                 load_pc_reg = 1'b1;
                 sel_pc_reg = 2'b01;
+            end
+            load_pc_loop: begin
+                waiting_reg = 1'b1;
+                load_pc_reg = 1'b1;
+                sel_pc_reg = 2'b00;
             end
             fetch: begin            //fetch from ram
                 waiting_reg = 1'b1;

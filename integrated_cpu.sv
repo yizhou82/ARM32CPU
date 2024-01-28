@@ -24,7 +24,7 @@ module integrated_cpu(input clk, input rst_n, input [10:0] start_pc);
         .rst_n(rst_n),
         .instr(ram_data1),
         .ram_data2(ram_data2),
-        .PC(pc_out),
+        .PC({21'b0, pc_out}),
         .waiting(waiting),
         .sel_pc(sel_pc),
         .dp_pc(dp_pc),
@@ -41,12 +41,12 @@ module integrated_cpu(input clk, input rst_n, input [10:0] start_pc);
         .clk(clk),
         .sel_pc(sel_pc),
         .start_pc(start_pc),
-        .dp_pc(memory_out),
+        .dp_pc(dp_pc),
         .pc_out(pc_out)
     );
 
     // duel_ram module
-    duel_ram duel_ram(
+    duel_mem duel_mem(
         .clock(clk),
         .wren_a(ram_w_en1),
         .wren_b(ram_w_en2),
