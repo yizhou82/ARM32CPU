@@ -22,7 +22,7 @@ module datapath(input clk, input [31:0] ram_data2, input forward_w_data,
     reg [31:0] A_reg, B_reg, S_reg, status_reg;
 
     // internal connections
-    assign status_out = status_reg;
+    assign status_out = status_in;
     assign datapath_out = ALU_out;
 
     //internal modules

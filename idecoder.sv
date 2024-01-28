@@ -93,7 +93,7 @@ module idecoder(
                                 opcode_reg = 7'b0000000;
                             end
                             default: begin // Return HALT if undefined
-                                opcode_reg = 7'b0000001;
+                                opcode_reg = 7'b0000111;
                             end
                         endcase
                     end else if(type_RS) begin

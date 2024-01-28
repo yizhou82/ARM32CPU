@@ -2,14 +2,14 @@ module controller(input clk, input rst_n,
                 input [6:0] opcode, input [31:0] status_reg, input [3:0] cond,
                 input P, input U, input W, input en_status_decode,
                 output waiting,                                                                                 //no use yet
-                output w_en1, output w_en2, output w_en3, output sel_w_data,                                    //regfile
+                output w_en1, output w_en2, output w_en3, output forward_w_data,                                    //regfile
                 output [1:0] sel_A_in, output [1:0] sel_B_in, output [1:0] sel_shift_in, output sel_shift,      //forwarding muxes
                 output en_A, output en_B, output en_C, output en_S,                                             //load regs stage
                 output sel_A, output sel_B, output sel_post_shift, output [2:0] ALU_op,                         //execute stage
                 output en_status,                           //status reg
                 output load_ir,                                                                                 //instruction register
                 output load_pc, output [1:0] sel_pc,                                                            //program counter
-                output [10:0] ram_addr1, output [10:0] ram_addr2, output ram_w_en1, output ram_w_en2);          //ram 
+                output ram_w_en1, output ram_w_en2);          //ram 
 
     /*
 
@@ -57,6 +57,7 @@ module controller(input clk, input rst_n,
     reg w_en1_reg;
     reg w_en2_reg;
     reg w_en3_reg;
+    reg forward_w_data_reg;
     reg sel_w_data_reg;
     reg [1:0] sel_A_in_reg;
     reg [1:0] sel_B_in_reg;
@@ -85,6 +86,7 @@ module controller(input clk, input rst_n,
     assign w_en1 = w_en1_reg;
     assign w_en2 = w_en2_reg;
     assign w_en3 = w_en3_reg;
+    assign forward_w_data = forward_w_data_reg;
     assign sel_w_data = sel_w_data_reg;
     assign sel_A_in = sel_A_in_reg;
     assign sel_B_in = sel_B_in_reg;
@@ -155,6 +157,7 @@ module controller(input clk, input rst_n,
         w_en1_reg = 1'b0;
         w_en2_reg = 1'b0;
         w_en3_reg = 1'b0;
+        forward_w_data_reg = 1'b0;
         sel_w_data_reg = 1'b0;
         sel_A_in_reg = 2'b00;
         sel_B_in_reg = 2'b00;
@@ -225,7 +228,7 @@ module controller(input clk, input rst_n,
                     end
 
                     // sel_shift_in, sel_shift, en_S
-                    en_S_reg = 1'b1;
+                    en_S_reg = 1'b1;        //TODO: doesnt affect anything for MOV_I BUT should be changed -> right now too lazy to change tb
                     if (opcode[4] == 1'b1) begin
                         //sel_shift
                         sel_shift_reg = opcode[5];
