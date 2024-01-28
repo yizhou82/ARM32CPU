@@ -56,7 +56,6 @@ module tb_integrated_cpu();
             clkR;
             clkR;
             clkR;
-            clkR;
         end
     endtask: clkCycle
 
