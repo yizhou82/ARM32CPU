@@ -3,6 +3,7 @@ module integrated_cpu(input clk, input rst_n, input [10:0] start_pc);
     // cpu outputs
     wire waiting;
     wire [1:0] sel_pc;
+    wire load_pc;
     wire [10:0] dp_pc; //for branching
     wire ram_w_en1;
     wire ram_w_en2;
@@ -27,6 +28,7 @@ module integrated_cpu(input clk, input rst_n, input [10:0] start_pc);
         .PC({21'b0, pc_out}),
         .waiting(waiting),
         .sel_pc(sel_pc),
+        .load_pc(load_pc),
         .dp_pc(dp_pc),
         .ram_w_en1(ram_w_en1),
         .ram_w_en2(ram_w_en2),
@@ -40,6 +42,7 @@ module integrated_cpu(input clk, input rst_n, input [10:0] start_pc);
     pc pc(
         .clk(clk),
         .sel_pc(sel_pc),
+        .load_pc(load_pc),
         .start_pc(start_pc),
         .dp_pc(dp_pc),
         .pc_out(pc_out)

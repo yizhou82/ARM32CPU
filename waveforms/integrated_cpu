@@ -1,0 +1,137 @@
+onerror {resume}
+quietly WaveActivateNextPane {} 0
+add wave -noupdate -expand -group controller -radix unsigned /tb_integrated_cpu/DUT/cpu/controller/clk
+add wave -noupdate -expand -group controller -radix unsigned /tb_integrated_cpu/DUT/cpu/controller/rst_n
+add wave -noupdate -expand -group controller -radix unsigned /tb_integrated_cpu/DUT/cpu/controller/opcode
+add wave -noupdate -expand -group controller -radix unsigned /tb_integrated_cpu/DUT/cpu/controller/status_reg
+add wave -noupdate -expand -group controller -radix unsigned /tb_integrated_cpu/DUT/cpu/controller/cond
+add wave -noupdate -expand -group controller -radix unsigned /tb_integrated_cpu/DUT/cpu/controller/P
+add wave -noupdate -expand -group controller -radix unsigned /tb_integrated_cpu/DUT/cpu/controller/U
+add wave -noupdate -expand -group controller -radix unsigned /tb_integrated_cpu/DUT/cpu/controller/W
+add wave -noupdate -expand -group controller -radix unsigned /tb_integrated_cpu/DUT/cpu/controller/en_status_decode
+add wave -noupdate -expand -group controller -radix unsigned /tb_integrated_cpu/DUT/cpu/controller/waiting
+add wave -noupdate -expand -group controller -radix unsigned /tb_integrated_cpu/DUT/cpu/controller/w_en1
+add wave -noupdate -expand -group controller -radix unsigned /tb_integrated_cpu/DUT/cpu/controller/w_en2
+add wave -noupdate -expand -group controller -radix unsigned /tb_integrated_cpu/DUT/cpu/controller/w_en3
+add wave -noupdate -expand -group controller -radix unsigned /tb_integrated_cpu/DUT/cpu/controller/forward_w_data
+add wave -noupdate -expand -group controller -radix unsigned /tb_integrated_cpu/DUT/cpu/controller/sel_A_in
+add wave -noupdate -expand -group controller -radix unsigned /tb_integrated_cpu/DUT/cpu/controller/sel_B_in
+add wave -noupdate -expand -group controller -radix unsigned /tb_integrated_cpu/DUT/cpu/controller/sel_shift_in
+add wave -noupdate -expand -group controller -radix unsigned /tb_integrated_cpu/DUT/cpu/controller/sel_shift
+add wave -noupdate -expand -group controller -radix unsigned /tb_integrated_cpu/DUT/cpu/controller/en_A
+add wave -noupdate -expand -group controller -radix unsigned /tb_integrated_cpu/DUT/cpu/controller/en_B
+add wave -noupdate -expand -group controller -radix unsigned /tb_integrated_cpu/DUT/cpu/controller/en_C
+add wave -noupdate -expand -group controller -radix unsigned /tb_integrated_cpu/DUT/cpu/controller/en_S
+add wave -noupdate -expand -group controller -radix unsigned /tb_integrated_cpu/DUT/cpu/controller/sel_A
+add wave -noupdate -expand -group controller -radix unsigned /tb_integrated_cpu/DUT/cpu/controller/sel_B
+add wave -noupdate -expand -group controller -radix unsigned /tb_integrated_cpu/DUT/cpu/controller/sel_post_shift
+add wave -noupdate -expand -group controller -radix unsigned /tb_integrated_cpu/DUT/cpu/controller/ALU_op
+add wave -noupdate -expand -group controller -radix unsigned /tb_integrated_cpu/DUT/cpu/controller/en_status
+add wave -noupdate -expand -group controller -radix unsigned /tb_integrated_cpu/DUT/cpu/controller/load_ir
+add wave -noupdate -expand -group controller -radix unsigned /tb_integrated_cpu/DUT/cpu/controller/load_pc
+add wave -noupdate -expand -group controller -radix unsigned /tb_integrated_cpu/DUT/cpu/controller/sel_pc
+add wave -noupdate -expand -group controller -radix unsigned /tb_integrated_cpu/DUT/cpu/controller/ram_w_en1
+add wave -noupdate -expand -group controller -radix unsigned /tb_integrated_cpu/DUT/cpu/controller/ram_w_en2
+add wave -noupdate -expand -group controller -radix unsigned /tb_integrated_cpu/DUT/cpu/controller/state
+add wave -noupdate -expand -group controller -radix unsigned /tb_integrated_cpu/DUT/cpu/controller/start
+add wave -noupdate -expand -group controller -radix unsigned /tb_integrated_cpu/DUT/cpu/controller/waiting_reg
+add wave -noupdate -expand -group controller -radix unsigned /tb_integrated_cpu/DUT/cpu/controller/w_en1_reg
+add wave -noupdate -expand -group controller -radix unsigned /tb_integrated_cpu/DUT/cpu/controller/w_en2_reg
+add wave -noupdate -expand -group controller -radix unsigned /tb_integrated_cpu/DUT/cpu/controller/w_en3_reg
+add wave -noupdate -expand -group controller -radix unsigned /tb_integrated_cpu/DUT/cpu/controller/forward_w_data_reg
+add wave -noupdate -expand -group controller -radix unsigned /tb_integrated_cpu/DUT/cpu/controller/sel_w_data_reg
+add wave -noupdate -expand -group controller -radix unsigned /tb_integrated_cpu/DUT/cpu/controller/sel_A_in_reg
+add wave -noupdate -expand -group controller -radix unsigned /tb_integrated_cpu/DUT/cpu/controller/sel_B_in_reg
+add wave -noupdate -expand -group controller -radix unsigned /tb_integrated_cpu/DUT/cpu/controller/sel_shift_in_reg
+add wave -noupdate -expand -group controller -radix unsigned /tb_integrated_cpu/DUT/cpu/controller/sel_shift_reg
+add wave -noupdate -expand -group controller -radix unsigned /tb_integrated_cpu/DUT/cpu/controller/en_A_reg
+add wave -noupdate -expand -group controller -radix unsigned /tb_integrated_cpu/DUT/cpu/controller/en_B_reg
+add wave -noupdate -expand -group controller -radix unsigned /tb_integrated_cpu/DUT/cpu/controller/en_C_reg
+add wave -noupdate -expand -group controller -radix unsigned /tb_integrated_cpu/DUT/cpu/controller/en_S_reg
+add wave -noupdate -expand -group controller -radix unsigned /tb_integrated_cpu/DUT/cpu/controller/sel_A_reg
+add wave -noupdate -expand -group controller -radix unsigned /tb_integrated_cpu/DUT/cpu/controller/sel_B_reg
+add wave -noupdate -expand -group controller -radix unsigned /tb_integrated_cpu/DUT/cpu/controller/sel_post_shift_reg
+add wave -noupdate -expand -group controller -radix unsigned /tb_integrated_cpu/DUT/cpu/controller/ALU_op_reg
+add wave -noupdate -expand -group controller -radix unsigned /tb_integrated_cpu/DUT/cpu/controller/en_status_reg
+add wave -noupdate -expand -group controller -radix unsigned /tb_integrated_cpu/DUT/cpu/controller/load_ir_reg
+add wave -noupdate -expand -group controller -radix unsigned /tb_integrated_cpu/DUT/cpu/controller/load_pc_reg
+add wave -noupdate -expand -group controller -radix unsigned /tb_integrated_cpu/DUT/cpu/controller/sel_pc_reg
+add wave -noupdate -expand -group controller -radix unsigned /tb_integrated_cpu/DUT/cpu/controller/load_addr_reg
+add wave -noupdate -expand -group controller -radix unsigned /tb_integrated_cpu/DUT/cpu/controller/ram_addr1_reg
+add wave -noupdate -expand -group controller -radix unsigned /tb_integrated_cpu/DUT/cpu/controller/ram_addr2_reg
+add wave -noupdate -expand -group controller -radix unsigned /tb_integrated_cpu/DUT/cpu/controller/ram_w_en1_reg
+add wave -noupdate -expand -group controller -radix unsigned /tb_integrated_cpu/DUT/cpu/controller/ram_w_en2_reg
+add wave -noupdate -expand -group controller -radix unsigned /tb_integrated_cpu/DUT/cpu/controller/sel_w_data
+add wave -noupdate -expand -group controller -radix unsigned /tb_integrated_cpu/DUT/cpu/controller/load_addr
+add wave -noupdate -expand -group controller -radix unsigned /tb_integrated_cpu/DUT/cpu/controller/ram_addr1
+add wave -noupdate -expand -group controller -radix unsigned /tb_integrated_cpu/DUT/cpu/controller/ram_addr2
+add wave -noupdate -expand -group datapath -radix unsigned /tb_integrated_cpu/DUT/cpu/datapath/clk
+add wave -noupdate -expand -group datapath -radix unsigned /tb_integrated_cpu/DUT/cpu/datapath/ram_data2
+add wave -noupdate -expand -group datapath -radix unsigned /tb_integrated_cpu/DUT/cpu/datapath/forward_w_data
+add wave -noupdate -expand -group datapath -radix unsigned /tb_integrated_cpu/DUT/cpu/datapath/w_addr1
+add wave -noupdate -expand -group datapath -radix unsigned /tb_integrated_cpu/DUT/cpu/datapath/w_en1
+add wave -noupdate -expand -group datapath -radix unsigned /tb_integrated_cpu/DUT/cpu/datapath/w_addr2
+add wave -noupdate -expand -group datapath -radix unsigned /tb_integrated_cpu/DUT/cpu/datapath/w_en2
+add wave -noupdate -expand -group datapath -radix unsigned /tb_integrated_cpu/DUT/cpu/datapath/w_addr3
+add wave -noupdate -expand -group datapath -radix unsigned /tb_integrated_cpu/DUT/cpu/datapath/w_en3
+add wave -noupdate -expand -group datapath -radix unsigned /tb_integrated_cpu/DUT/cpu/datapath/w_data3
+add wave -noupdate -expand -group datapath -radix unsigned /tb_integrated_cpu/DUT/cpu/datapath/A_addr
+add wave -noupdate -expand -group datapath -radix unsigned /tb_integrated_cpu/DUT/cpu/datapath/B_addr
+add wave -noupdate -expand -group datapath -radix unsigned /tb_integrated_cpu/DUT/cpu/datapath/shift_addr
+add wave -noupdate -expand -group datapath -radix unsigned /tb_integrated_cpu/DUT/cpu/datapath/str_addr
+add wave -noupdate -expand -group datapath -radix unsigned /tb_integrated_cpu/DUT/cpu/datapath/PC
+add wave -noupdate -expand -group datapath -radix unsigned /tb_integrated_cpu/DUT/cpu/datapath/sel_A_in
+add wave -noupdate -expand -group datapath -radix unsigned /tb_integrated_cpu/DUT/cpu/datapath/sel_B_in
+add wave -noupdate -expand -group datapath -radix unsigned /tb_integrated_cpu/DUT/cpu/datapath/sel_shift_in
+add wave -noupdate -expand -group datapath -radix unsigned /tb_integrated_cpu/DUT/cpu/datapath/en_A
+add wave -noupdate -expand -group datapath -radix unsigned /tb_integrated_cpu/DUT/cpu/datapath/en_B
+add wave -noupdate -expand -group datapath -radix unsigned /tb_integrated_cpu/DUT/cpu/datapath/shift_imme
+add wave -noupdate -expand -group datapath -radix unsigned /tb_integrated_cpu/DUT/cpu/datapath/sel_shift
+add wave -noupdate -expand -group datapath -radix unsigned /tb_integrated_cpu/DUT/cpu/datapath/shift_op
+add wave -noupdate -expand -group datapath -radix unsigned /tb_integrated_cpu/DUT/cpu/datapath/en_S
+add wave -noupdate -expand -group datapath -radix unsigned /tb_integrated_cpu/DUT/cpu/datapath/sel_A
+add wave -noupdate -expand -group datapath -radix unsigned /tb_integrated_cpu/DUT/cpu/datapath/sel_B
+add wave -noupdate -expand -group datapath -radix unsigned /tb_integrated_cpu/DUT/cpu/datapath/sel_post_shift
+add wave -noupdate -expand -group datapath -radix unsigned /tb_integrated_cpu/DUT/cpu/datapath/imme_data
+add wave -noupdate -expand -group datapath -radix unsigned /tb_integrated_cpu/DUT/cpu/datapath/ALU_op
+add wave -noupdate -expand -group datapath -radix unsigned /tb_integrated_cpu/DUT/cpu/datapath/en_status
+add wave -noupdate -expand -group datapath -radix unsigned /tb_integrated_cpu/DUT/cpu/datapath/datapath_out
+add wave -noupdate -expand -group datapath -radix unsigned /tb_integrated_cpu/DUT/cpu/datapath/status_out
+add wave -noupdate -expand -group datapath -radix unsigned /tb_integrated_cpu/DUT/cpu/datapath/str_data
+add wave -noupdate -expand -group datapath -radix unsigned /tb_integrated_cpu/DUT/cpu/datapath/A_data
+add wave -noupdate -expand -group datapath -radix unsigned /tb_integrated_cpu/DUT/cpu/datapath/B_data
+add wave -noupdate -expand -group datapath -radix unsigned /tb_integrated_cpu/DUT/cpu/datapath/shift_data
+add wave -noupdate -expand -group datapath -radix unsigned /tb_integrated_cpu/DUT/cpu/datapath/w_data1
+add wave -noupdate -expand -group datapath -radix unsigned /tb_integrated_cpu/DUT/cpu/datapath/shift_out
+add wave -noupdate -expand -group datapath -radix unsigned /tb_integrated_cpu/DUT/cpu/datapath/val_A
+add wave -noupdate -expand -group datapath -radix unsigned /tb_integrated_cpu/DUT/cpu/datapath/val_B
+add wave -noupdate -expand -group datapath -radix unsigned /tb_integrated_cpu/DUT/cpu/datapath/val_B_in
+add wave -noupdate -expand -group datapath -radix unsigned /tb_integrated_cpu/DUT/cpu/datapath/ALU_out
+add wave -noupdate -expand -group datapath -radix unsigned /tb_integrated_cpu/DUT/cpu/datapath/shift_amt
+add wave -noupdate -expand -group datapath -radix unsigned /tb_integrated_cpu/DUT/cpu/datapath/status_in
+add wave -noupdate -expand -group datapath -radix unsigned /tb_integrated_cpu/DUT/cpu/datapath/A_in
+add wave -noupdate -expand -group datapath -radix unsigned /tb_integrated_cpu/DUT/cpu/datapath/B_in
+add wave -noupdate -expand -group datapath -radix unsigned /tb_integrated_cpu/DUT/cpu/datapath/shift_in
+add wave -noupdate -expand -group datapath -radix unsigned /tb_integrated_cpu/DUT/cpu/datapath/A_reg
+add wave -noupdate -expand -group datapath -radix unsigned /tb_integrated_cpu/DUT/cpu/datapath/B_reg
+add wave -noupdate -expand -group datapath -radix unsigned /tb_integrated_cpu/DUT/cpu/datapath/S_reg
+add wave -noupdate -expand -group datapath -radix unsigned /tb_integrated_cpu/DUT/cpu/datapath/status_reg
+add wave -noupdate -expand -group regs -radix unsigned /tb_integrated_cpu/DUT/cpu/datapath/regfile/regsiteres
+TreeUpdate [SetDefaultTree]
+WaveRestoreCursors {{Cursor 1} {29523 ps} 0}
+quietly wave cursor active 1
+configure wave -namecolwidth 246
+configure wave -valuecolwidth 181
+configure wave -justifyvalue left
+configure wave -signalnamewidth 1
+configure wave -snapdistance 10
+configure wave -datasetprefix 0
+configure wave -rowmargin 4
+configure wave -childrowmargin 2
+configure wave -gridoffset 0
+configure wave -gridperiod 1
+configure wave -griddelta 40
+configure wave -timeline 0
+configure wave -timelineunits ps
+update
+WaveRestoreZoom {0 ps} {35636 ps}

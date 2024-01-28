@@ -46,10 +46,33 @@ module tb_integrated_cpu();
         end
     endtask: reset
 
-    initial $readmemb("C:/Users/richa/OneDrive - UBC/Documents/Personal_Projects/Winter_CPU_Project/ARM32CPU/memory_data/movTests.memh",
-        DUT.duel_mem.altsyncram_component.m_default.altsyncram_inst.mem_data);
+    task clkCycle;
+        begin
+            clkR;
+            clkR;
+            clkR;
+            clkR;
+            clkR;
+            clkR;
+            clkR;
+            clkR;
+            clkR;
+        end
+    endtask: clkCycle
 
+    integer i = 0;
     initial begin
+        //fill the duel memory with instructions: with the mov instructions
+        $readmemb("C:/Users/richa/OneDrive - UBC/Documents/Personal_Projects/Winter_CPU_Project/ARM32CPU/memory_data/movTests.memh",
+            DUT.duel_mem.altsyncram_component.m_default.altsyncram_inst.mem_data);
+        
+        reset;
+        start_pc = 32'd0;
+
+        //Fill each register with default values
+        for (i = 0; i < 16; i = i + 1) begin
+            clkCycle;
+        end
         
         //print final test results
         if (error_count == 0) begin

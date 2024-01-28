@@ -1,5 +1,5 @@
 module cpu (input clk, input rst_n, input [31:0] instr, input [31:0] ram_data2, input [31:0] PC,
-            output waiting, output [1:0] sel_pc, output [10:0] dp_pc,
+            output waiting, output [1:0] sel_pc, output load_pc, output [10:0] dp_pc,
             output ram_w_en1, output ram_w_en2, output [10:0] ram_addr2, output [31:0] ram_in2,
             output [31:0] status_out, output [31:0] datapath_out); //TODO: status_out may be removed
 
@@ -40,7 +40,7 @@ module cpu (input clk, input rst_n, input [31:0] instr, input [31:0] ram_data2, 
     wire sel_A, sel_B, sel_post_shift;
     wire [2:0] ALU_op;
     wire en_status;
-    wire load_ir, load_pc;
+    wire load_ir, load_pc_ctrl;
     wire [1:0] sel_pc_ctrl;
     wire [10:0] ram_addr1_ctrl, ram_addr2_ctrl;
     wire ram_w_en1_ctrl, ram_w_en2_ctrl;
@@ -48,6 +48,7 @@ module cpu (input clk, input rst_n, input [31:0] instr, input [31:0] ram_data2, 
     assign sel_pc = sel_pc_ctrl;
     assign ram_w_en1 = ram_w_en1_ctrl;
     assign ram_w_en2 = ram_w_en2_ctrl;
+    assign load_pc = load_pc_ctrl;
 
     // idecoder module
     idecoder idecoder(
@@ -135,7 +136,7 @@ module cpu (input clk, input rst_n, input [31:0] instr, input [31:0] ram_data2, 
         .ALU_op(ALU_op),
         .en_status(en_status),
         .load_ir(load_ir),
-        .load_pc(load_pc),
+        .load_pc(load_pc_ctrl),
         .sel_pc(sel_pc_ctrl),
         .ram_w_en1(ram_w_en1_ctrl),
         .ram_w_en2(ram_w_en2_ctrl)
