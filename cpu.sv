@@ -7,9 +7,10 @@ module cpu (input clk, input rst_n, input [31:0] instr, input [31:0] ram_data2, 
     reg [31:0] instr_reg;
     wire [3:0] cond;
     wire [6:0] opcode;
-    wire en_status;
+    wire en_status_decode;
     wire [3:0] rn;
     wire [3:0] rd;
+    wire [3:0] rt;
     wire [3:0] rs;
     wire [3:0] rm;
     wire [1:0] shift_op;
@@ -17,6 +18,7 @@ module cpu (input clk, input rst_n, input [31:0] instr, input [31:0] ram_data2, 
     wire [11:0] imm12;
     wire [23:0] imm24;
     wire P,U,W;
+    assign rt = rd;
 
     // datapath outputs
     wire [31:0] status_out_dp;
@@ -28,14 +30,14 @@ module cpu (input clk, input rst_n, input [31:0] instr, input [31:0] ram_data2, 
 
     // controller outputs
     wire waiting_ctrl;
-    wire w_en1, w_en2, sel_w_data;
+    wire w_en1, w_en2, w_en3, sel_w_data;
     wire [1:0] sel_A_in, sel_B_in, sel_shift_in;
     wire sel_shift;
     wire wb_sel;
     wire en_A, en_B, en_C, en_S;
     wire sel_A, sel_B, sel_post_shift;
     wire [2:0] ALU_op;
-    wire en_out1, en_out2, en_status1, en_status2;
+    wire en_status;
     wire load_ir, load_pc;
     wire [1:0] sel_pc_ctrl;
     wire sel_ram_addr2_ctrl;
@@ -55,7 +57,7 @@ module cpu (input clk, input rst_n, input [31:0] instr, input [31:0] ram_data2, 
         .instr(instr_reg),
         .cond(cond),
         .opcode(opcode),
-        .en_status(en_status),
+        .en_status(en_status_decode),
         .rn(rn),
         .rd(rd),
         .rs(rs),
@@ -73,15 +75,18 @@ module cpu (input clk, input rst_n, input [31:0] instr, input [31:0] ram_data2, 
     datapath datapath(
         .clk(clk),
         .ram_data2(ram_data2),
-        .sel_w_data(sel_w_data),
+        .forward_w_data(forward_w_data),
         .w_addr1(rd),
         .w_en1(w_en1),
         .w_addr2(rd),
         .w_en2(w_en2),
+        .w_addr3(rt),   //for LDR
+        .w_en3(w_en3),
+        .w_data3(ram_data2),  //for LDR
         .A_addr(rn),
         .B_addr(rm),
         .shift_addr(rs),
-        //need rt for load/store
+        .str_addr(rt),
         .PC(PC),
         .sel_A_in(sel_A_in),
         .sel_B_in(sel_B_in),
@@ -97,10 +102,7 @@ module cpu (input clk, input rst_n, input [31:0] instr, input [31:0] ram_data2, 
         .sel_post_shift(sel_post_shift),
         .imme_data({20'd0, imm12}),
         .ALU_op(ALU_op),
-        .en_out1(en_out1),
-        .en_out2(en_out2),
-        .en_status1(en_status1),
-        .en_status2(en_status2),
+        .en_status(en_status),
         .datapath_out(datapath_out_dp),
         .memory_out(memory_out_dp),
         .status_out(status_out_dp)
@@ -113,6 +115,10 @@ module cpu (input clk, input rst_n, input [31:0] instr, input [31:0] ram_data2, 
         .opcode(opcode),
         .status_reg(status_out_dp),
         .cond(cond),
+        .P(P),
+        .U(U),
+        .W(W),
+        .en_status_decode(en_status),
         .waiting(waiting_ctrl),
         .w_en1(w_en1),
         .w_en2(w_en2),
@@ -129,10 +135,7 @@ module cpu (input clk, input rst_n, input [31:0] instr, input [31:0] ram_data2, 
         .sel_B(sel_B),
         .sel_post_shift(sel_post_shift),
         .ALU_op(ALU_op),
-        .en_out1(en_out1),
-        .en_out2(en_out2),
-        .en_status1(en_status1),
-        .en_status2(en_status2),
+        .en_status(en_status),
         .load_ir(load_ir),
         .load_pc(load_pc),
         .sel_pc(sel_pc_ctrl),

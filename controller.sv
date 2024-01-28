@@ -1,12 +1,12 @@
 module controller(input clk, input rst_n,
                 input [6:0] opcode, input [31:0] status_reg, input [3:0] cond,
-                input P, input U, input W,
+                input P, input U, input W, input en_status_decode,
                 output waiting,                                                                                 //no use yet
                 output w_en1, output w_en2, output w_en3, output sel_w_data,                                    //regfile
                 output [1:0] sel_A_in, output [1:0] sel_B_in, output [1:0] sel_shift_in, output sel_shift,      //forwarding muxes
                 output en_A, output en_B, output en_C, output en_S,                                             //load regs stage
                 output sel_A, output sel_B, output sel_post_shift, output [2:0] ALU_op,                         //execute stage
-                output en_out1, output en_out2, output en_status1, output en_status2,                           //status reg
+                output en_status,                           //status reg
                 output load_ir,                                                                                 //instruction register
                 output load_pc, output [1:0] sel_pc,                                                            //program counter
                 output [10:0] ram_addr1, output [10:0] ram_addr2, output ram_w_en1, output ram_w_en2);          //ram 
@@ -70,6 +70,7 @@ module controller(input clk, input rst_n,
     reg sel_B_reg;
     reg sel_post_shift_reg;
     reg [2:0] ALU_op_reg;
+    reg en_status_reg;
     reg load_ir_reg;
     reg load_pc_reg;
     reg sel_pc_reg;
@@ -97,6 +98,7 @@ module controller(input clk, input rst_n,
     assign sel_B = sel_B_reg;
     assign sel_post_shift = sel_post_shift_reg;
     assign ALU_op = ALU_op_reg;
+    assign en_status = en_status_reg;
     assign load_ir = load_ir_reg;
     assign load_pc = load_pc_reg;
     assign sel_pc = sel_pc_reg;
@@ -166,6 +168,7 @@ module controller(input clk, input rst_n,
         sel_B_reg = 1'b0;
         sel_post_shift_reg = 1'b0;
         ALU_op_reg = 3'b000;
+        en_status_reg = 1'b0;
         load_ir_reg = 1'b0;
         load_pc_reg = 1'b0;
         load_addr_reg = 1'b0;
@@ -314,6 +317,12 @@ module controller(input clk, input rst_n,
                     //sel_post_shift
                     sel_post_shift_reg = 1'b0;
 
+                    //sel_w_data
+                    sel_w_data_reg = 1'b0;
+
+                    //en_status -> since branching decoding doesnt this rule anymore
+                    en_status_reg = en_status_decode;
+                    
                     //write_back
                     if (opcode[3:0] != CMP) begin
                         //w_en1
@@ -322,8 +331,8 @@ module controller(input clk, input rst_n,
                         //w_addr is taken from decoder
                     end
 
-                    //sel_w_data
-                    sel_w_data_reg = 1'b0;
+                    //ram memory
+                    ram_w_en2_reg = 1'b0;
                 end else if (opcode[6:5] == 2'b11 || opcode[6:3] == 4'b1000) begin //STR and LDR
                     /*
                     ALU_op
@@ -355,6 +364,10 @@ module controller(input clk, input rst_n,
 
                     //sel_w_data -> default
                     sel_w_data_reg = 1'b0;
+
+                    //en_status
+                    en_status_reg = en_status_decode;
+
 
                     //en_w1 write back
                     w_en1_reg = 1'b0;

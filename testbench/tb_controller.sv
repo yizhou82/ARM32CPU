@@ -7,6 +7,7 @@ module tb_controller(output err);
     reg [31:0] status_reg;
     reg [3:0] cond;
     reg P, U, W;
+    reg en_status_decode;
 
     wire waiting;
     wire w_en1, w_en2, w_en3, sel_w_data;
@@ -15,7 +16,7 @@ module tb_controller(output err);
     wire en_A, en_B, en_C, en_S;
     wire sel_A, sel_B, sel_post_shift;
     wire [2:0] ALU_op;
-    wire en_out1, en_out2, en_status1, en_status2;
+    wire en_status;
     wire load_ir, load_pc;
     wire [1:0] sel_pc;
     wire sel_ram_addr2;
@@ -34,6 +35,7 @@ module tb_controller(output err);
         .P(P),
         .U(U),
         .W(W),
+        .en_status_decode(en_status_decode),
         .waiting(waiting),
         .w_en1(w_en1),
         .w_en2(w_en2),
@@ -51,10 +53,7 @@ module tb_controller(output err);
         .sel_B(sel_B),
         .sel_post_shift(sel_post_shift),
         .ALU_op(ALU_op),
-        .en_out1(en_out1),
-        .en_out2(en_out2),
-        .en_status1(en_status1),
-        .en_status2(en_status2),
+        .en_status(en_status),
         .load_ir(load_ir),
         .load_pc(load_pc),
         .sel_pc(sel_pc),
