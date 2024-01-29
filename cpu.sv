@@ -37,7 +37,7 @@ module cpu (input clk, input rst_n, input [31:0] instr, input [31:0] ram_data2, 
     wire sel_shift;
     wire wb_sel;
     wire en_A, en_B, en_C, en_S;
-    wire sel_A, sel_B, sel_post_shift;
+    wire sel_A, sel_B, sel_post_indexing;
     wire [2:0] ALU_op;
     wire en_status, status_rdy_ctrl;
     wire load_ir, load_pc_ctrl;
@@ -76,7 +76,7 @@ module cpu (input clk, input rst_n, input [31:0] instr, input [31:0] ram_data2, 
         .forward_w_data(forward_w_data),
         .w_addr1(rd),
         .w_en1(w_en1),
-        .w_addr2(rd),
+        .w_addr2(rn),
         .w_en2(w_en2),
         .w_addr3(rt),   //for LDR
         .w_en3(w_en3),
@@ -97,7 +97,7 @@ module cpu (input clk, input rst_n, input [31:0] instr, input [31:0] ram_data2, 
         .en_S(en_S),
         .sel_A(sel_A),
         .sel_B(sel_B),
-        .sel_post_shift(sel_post_shift),
+        .sel_post_indexing(sel_post_indexing),
         .imme_data({20'd0, imm12}),
         .ALU_op(ALU_op),
         .en_status(en_status),
@@ -133,7 +133,7 @@ module cpu (input clk, input rst_n, input [31:0] instr, input [31:0] ram_data2, 
         .en_S(en_S),
         .sel_A(sel_A),
         .sel_B(sel_B),
-        .sel_post_shift(sel_post_shift),
+        .sel_post_indexing(sel_post_indexing),
         .ALU_op(ALU_op),
         .en_status(en_status),
         .status_rdy(status_rdy_ctrl),

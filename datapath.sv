@@ -4,7 +4,7 @@ module datapath(input clk, input [31:0] ram_data2, input forward_w_data,
                 input [31:0] PC, input [1:0] sel_A_in, input [1:0] sel_B_in, input [1:0] sel_shift_in,    //inputs for forwarding muxes
                 input en_A, input en_B, input [31:0] shift_imme, input sel_shift,
                 input [1:0] shift_op, input en_S,
-                input sel_A, input sel_B, input sel_post_shift, input [31:0] imme_data,
+                input sel_A, input sel_B, input sel_post_indexing, input [31:0] imme_data,
                 input [2:0] ALU_op, input en_status, input status_rdy,                                                //datapath inputs
                 output [31:0] datapath_out, output [31:0] status_out, output [31:0] str_data);      //datapath outputs
   
@@ -14,7 +14,7 @@ module datapath(input clk, input [31:0] ram_data2, input forward_w_data,
     //shifter
     wire [31:0] shift_out;
     //register ALU
-    wire [31:0] val_A, val_B, val_B_in, ALU_out, shift_amt, status_in;
+    wire [31:0] val_A, val_B, ALU_out, shift_amt, status_in;
     //forwarding muxes
     reg [31:0] A_in, B_in, shift_in;
 
@@ -22,11 +22,10 @@ module datapath(input clk, input [31:0] ram_data2, input forward_w_data,
     reg [31:0] A_reg, B_reg, S_reg, status_out_reg;
 
     // internal connections
-    assign datapath_out = ALU_out;
     assign status_out = status_out_reg;
 
     //internal modules
-    regfile regfile(.clk(clk), .w_data1(w_data1), .w_addr1(w_addr1), .w_en1(w_en1), .w_data2(val_B_in),
+    regfile regfile(.clk(clk), .w_data1(w_data1), .w_addr1(w_addr1), .w_en1(w_en1), .w_data2(ALU_out),
                     .w_addr2(w_addr2), .w_en2(w_en2), .w_data3(w_data3), .w_addr3(w_addr3), .w_en3(w_en3), 
                     .A_addr(A_addr), .B_addr(B_addr), .shift_addr(shift_addr), .str_addr(str_addr),
                     .A_data(A_data), .B_data(B_data), .shift_data(shift_data), .str_data(str_data));
@@ -35,11 +34,11 @@ module datapath(input clk, input [31:0] ram_data2, input forward_w_data,
     status_reg_block status_reg(.clk(clk), .en_status(en_status), .status_rdy(status_rdy), .status_in(status_in), .status_out(status_out_reg));
 
     //muxes
+    assign datapath_out = (sel_post_indexing == 1'b1) ? val_A : ALU_out;
     assign w_data1 = (forward_w_data == 1'b1) ? ram_data2 : ALU_out;
     assign val_A = (sel_A == 1'b1) ? 31'b0 : A_reg;
-    assign val_B_in = (sel_B == 1'b1) ? imme_data : shift_out; 
-    assign shift_amt = (sel_shift == 1'b1) ? shift_data: shift_imme;
-    assign val_B = (sel_post_shift == 1'b1) ? B_reg : val_B_in;
+    assign val_B = (sel_B == 1'b1) ? imme_data : shift_out; 
+    assign shift_amt = (sel_shift == 1'b1) ? shift_in: shift_imme;
     //A_mux
     always_comb begin
         case (sel_A_in)
