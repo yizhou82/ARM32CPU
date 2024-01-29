@@ -2,7 +2,7 @@ module controller(input clk, input rst_n,
                 input [6:0] opcode, input [31:0] status_reg, input [3:0] cond,
                 input P, input U, input W, input en_status_decode,
                 output waiting,                                                                                 //no use yet
-                output w_en1, output w_en2, output w_en3, output forward_w_data,                                //regfile
+                output w_en1, output w_en2, output w_en3, output forward_w_data, output sel_w_addr1,                             //regfile
                 output [1:0] sel_A_in, output [1:0] sel_B_in, output [1:0] sel_shift_in, output sel_shift,      //forwarding muxes
                 output en_A, output en_B, output en_C, output en_S,                                             //load regs stage
                 output sel_A, output sel_B, output sel_post_indexing, output [2:0] ALU_op,                         //execute stage
@@ -49,6 +49,12 @@ module controller(input clk, input rst_n,
     localparam [2:0] ORR = 3'b011;
     localparam [2:0] XOR = 3'b111;
 
+    // status bit
+    reg Z = status_reg[31];
+    reg N = status_reg[30];
+    reg C = status_reg[29];
+    reg V = status_reg[28];
+
     // reg for state
     reg [3:0] state;
     reg start = 1'b0;
@@ -59,7 +65,7 @@ module controller(input clk, input rst_n,
     reg w_en2_reg;
     reg w_en3_reg;
     reg forward_w_data_reg;
-    reg sel_w_data_reg;
+    reg sel_w_addr1_reg;
     reg [1:0] sel_A_in_reg;
     reg [1:0] sel_B_in_reg;
     reg [1:0] sel_shift_in_reg;
@@ -89,7 +95,7 @@ module controller(input clk, input rst_n,
     assign w_en2 = w_en2_reg;
     assign w_en3 = w_en3_reg;
     assign forward_w_data = forward_w_data_reg;
-    assign sel_w_data = sel_w_data_reg;
+    assign sel_w_addr1 = sel_w_addr1_reg;
     assign sel_A_in = sel_A_in_reg;
     assign sel_B_in = sel_B_in_reg;
     assign sel_shift_in = sel_shift_in_reg;
@@ -164,7 +170,7 @@ module controller(input clk, input rst_n,
         w_en2_reg = 1'b0;
         w_en3_reg = 1'b0;
         forward_w_data_reg = 1'b0;
-        sel_w_data_reg = 1'b0;
+        sel_w_addr1_reg = 1'b0;
         sel_A_in_reg = 2'b00;
         sel_B_in_reg = 2'b00;
         sel_shift_in_reg = 1'b0;
@@ -300,6 +306,8 @@ module controller(input clk, input rst_n,
                         //sel_shift_in
                         sel_shift_in_reg = 2'b00;       //load from Rm
                     end
+                end else if (opcode[6:3] == 4'b1000) begin  //branching
+                    //stuff
                 end
             end
             memory: begin
@@ -333,7 +341,7 @@ module controller(input clk, input rst_n,
                     sel_post_indexing_reg = 1'b0;
 
                     //sel_w_data
-                    sel_w_data_reg = 1'b0;
+                    forward_w_data_reg = 1'b0;
 
                     //en_status -> since branching decoding doesnt this rule anymore
                     en_status_reg = en_status_decode;
@@ -378,7 +386,7 @@ module controller(input clk, input rst_n,
                     end
 
                     //sel_w_data -> default
-                    sel_w_data_reg = 1'b0;
+                    forward_w_data_reg = 1'b0;
 
                     //en_status
                     en_status_reg = en_status_decode;
@@ -395,6 +403,36 @@ module controller(input clk, input rst_n,
                     end else begin //LDR
                         ram_w_en2_reg = 1'b0;
                     end
+                end else if (opcode[6:3] == 4'b1000) begin  //branching
+                    //chaging sel_pc if condition matches the status register
+                    if ((cond == 4'b0000 && Z) || 
+                        (cond == 4'b0001 && ~Z) || 
+                        (cond == 4'b0010 && C) || 
+                        (cond == 4'b0011 && ~C) || 
+                        (cond == 4'b0100 && N) || 
+                        (cond == 4'b0101 && ~N) || 
+                        (cond == 4'b0110 && V) || 
+                        (cond == 4'b0111 && ~V) || 
+                        (cond == 4'b1000 && C && ~Z) || 
+                        (cond == 4'b1001 && ~C || Z) || 
+                        (cond == 4'b1010 && N == V) || 
+                        (cond == 4'b1011 && N != V) || 
+                        (cond == 4'b1100 && ~Z && (N == V)) || 
+                        (cond == 4'b1101 && Z || (N != V)) || 
+                        (cond == 4'b1110)) begin
+
+                        sel_pc_reg = 2'b11;
+                        load_pc_reg = 1'b1;
+                    end
+
+                    //write to LR is applicable
+                    if (opcode[2] == 1'b1) begin
+                        //w_en1
+                        w_en1_reg = 1'b1;
+                        forward_w_data_reg = 1'b0;
+                        sel_w_addr1_reg = 1'b1;
+                    end
+                        
                 end
             end
             memory_wait: begin

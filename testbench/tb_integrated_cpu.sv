@@ -69,7 +69,7 @@ module tb_integrated_cpu();
         start_pc = 32'd0;
 
         // Fill each register with default values
-        for (i = 0; i < 16; i = i + 1) begin
+        for (i = 0; i < 15; i = i + 1) begin
             clkCycle;
             check(i + 1, DUT.cpu.datapath.regfile.registeres[i], i);
         end
@@ -108,10 +108,13 @@ module tb_integrated_cpu();
         start_pc = 32'd0;
 
         // Fill each register with default values
-        for (i = 0; i < 16; i = i + 1) begin
+        for (i = 0; i < 15; i = i + 1) begin
             clkCycle;
             check(i, DUT.cpu.datapath.regfile.registeres[i], i + 26);
         end
+
+        //filler instruction
+        clkCycle;
 
         // LDR_I r0, r9, #19
         clkCycle;
@@ -122,10 +125,10 @@ module tb_integrated_cpu();
         clkCycle;
         check(29, DUT.cpu.datapath.regfile.registeres[0], 43);
 
-        //LDR_R r15, r0, r1 -> address = 29 -> write 28 to r0
+        //LDR_R r14, r0, r1 -> address = 29 -> write 28 to r0
         clkCycle;
         check(28, DUT.cpu.datapath.regfile.registeres[0], 44);
-        check(8, DUT.cpu.datapath.regfile.registeres[15], 45);
+        check(8, DUT.cpu.datapath.regfile.registeres[14], 45);
 
         //STR_R r9, r12, r2 LSL 3 -> address = 12 + 2 * 8 = 28 -> write 28 address 12
         clkCycle;
