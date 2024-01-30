@@ -55,7 +55,6 @@ module tb_integrated_cpu();
             clkR;
             clkR;
             clkR;
-            clkR;
         end
     endtask: clkCycle
 
@@ -76,6 +75,7 @@ module tb_integrated_cpu();
         
         // ADD_R r0, r0, r0
         clkCycle;
+        clkR;   //because loading start_pc is exctra cycle
         check(2, DUT.cpu.datapath.regfile.registeres[0], 16);
         check(0, DUT.cpu.status_out, 17);
 
@@ -102,10 +102,9 @@ module tb_integrated_cpu();
         // ### LDR and STR tests ###
         $readmemb("C:/Users/richa/OneDrive - UBC/Documents/Personal_Projects/Winter_CPU_Project/ARM32CPU/memory_data/str_ldr_CPUTests.memh",
             DUT.duel_mem.altsyncram_component.m_default.altsyncram_inst.mem_data);
-        $readmemb("C:/Users/richa/OneDrive - UBC/Documents/Personal_Projects/Winter_CPU_Project/ARM32CPU/memory_data/str_ldr_CPUTests.memh",
-            DUT.duel_mem.altsyncram_component.m_default.altsyncram_inst.mem_data_b);
         reset;
         start_pc = 32'd0;
+        clkR;   //because loading start_pc is exctra cycle
 
         // Fill each register with default values
         for (i = 0; i < 15; i = i + 1) begin
@@ -137,6 +136,49 @@ module tb_integrated_cpu();
         // LDR_Lit r1, #8 -> PC == 20, write 10 to r1
         clkCycle;
         check(10, DUT.cpu.datapath.regfile.registeres[1], 47);
+
+        // ### Branch tests ###
+        $readmemb("C:/Users/richa/OneDrive - UBC/Documents/Personal_Projects/Winter_CPU_Project/ARM32CPU/memory_data/branchCPUTests.memh",
+            DUT.duel_mem.altsyncram_component.m_default.altsyncram_inst.mem_data);
+        reset;
+        start_pc = 32'd0;
+        clkR;   //because loading start_pc is exctra cycle
+
+        //MOV_I r0, #1
+        clkCycle;
+        check(1, DUT.cpu.datapath.regfile.registeres[0], 48);
+
+        //MOV_I r1, #10
+        clkCycle;
+        check(10, DUT.cpu.datapath.regfile.registeres[1], 49);
+
+        //ADD r0, r0, #1
+        //CMP r0, r1
+        //BLE #2
+        for (i = 0; i < 8; i = i + 1) begin
+            clkCycle;
+            check(2 + i, DUT.cpu.datapath.regfile.registeres[0], i * 3 + 50);
+            clkCycle;
+            check(32'b10000000_00000000_00000000_00000000, DUT.cpu.status_out, (i * 3) + 51);
+            clkCycle;
+            check(2, DUT.cpu.datapath.regfile.registeres[15], (i * 3) + 52);
+        end
+        clkCycle;
+        check(10, DUT.cpu.datapath.regfile.registeres[0], 77);
+        clkCycle;   //r0 == r1
+        check(32'b01000000_00000000_00000000_00000000, DUT.cpu.status_out, 78);
+        clkCycle;
+        check(2, DUT.cpu.datapath.regfile.registeres[15], 79);
+        clkCycle;
+        check(11, DUT.cpu.datapath.regfile.registeres[0], 80);
+        clkCycle;   //r0 > r1
+        check(32'b00000000_00000000_00000000_00000000, DUT.cpu.status_out, 81);
+        clkCycle;
+        check(5, DUT.cpu.datapath.regfile.registeres[15], 82);
+        
+        //STR r0, r0, #1
+        clkCycle;
+        check(11, DUT.duel_mem.altsyncram_component.m_default.altsyncram_inst.mem_data[10], 83);
 
         //print final test results
         if (error_count == 0) begin

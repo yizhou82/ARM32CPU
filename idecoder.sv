@@ -63,9 +63,9 @@ module idecoder(
                     opcode_reg = 7'b0000001; //WILL CHANGE LATER
                 end else if(instr[27:21] == 7'b0001001) begin // BX and BLX
                     if(instr[5] == 1'b0) begin // BX
-                        opcode_reg = 7'b1000001;
+                        opcode_reg = 7'b1001001;
                     end else begin // BLX
-                        opcode_reg = 7'b1000101;
+                        opcode_reg = 7'b1001101;
                     end
                 end else begin
                     if(type_I) begin
@@ -168,11 +168,11 @@ module idecoder(
                         //     opcode_reg = 7'b1000101;
                         // end
                         default: begin // B
-                            opcode_reg = 7'b1000000;
+                            opcode_reg = 7'b1001000;
                         end
                     endcase
                 end else begin // BL
-                    opcode_reg = 7'b1000100;
+                    opcode_reg = 7'b1001100;
                 end
             end
             2'b01: begin //load and str

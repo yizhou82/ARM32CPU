@@ -26,15 +26,14 @@ module controller(input clk, input rst_n,
 
     //move all the local param values 1 value higher
     localparam [3:0] reset = 4'd0;
-    localparam [3:0] load_pc_loop = 4'd1;
-    localparam [3:0] fetch = 4'd2;
-    localparam [3:0] fetch_wait = 4'd3;
-    localparam [3:0] decode = 4'd4;
-    localparam [3:0] execute = 4'd5;
-    localparam [3:0] memory = 4'd6;
-    localparam [3:0] memory_wait = 4'd7;
-    localparam [3:0] write_back = 4'd8;
-    localparam [3:0] load_pc_start = 4'd9;
+    localparam [3:0] fetch = 4'd1;
+    localparam [3:0] fetch_wait = 4'd2;
+    localparam [3:0] decode = 4'd3;
+    localparam [3:0] execute = 4'd4;
+    localparam [3:0] memory_increment_pc = 4'd5;
+    localparam [3:0] memory_wait = 4'd6;
+    localparam [3:0] write_back = 4'd7;
+    localparam [3:0] load_pc_start = 4'd8;
 
     // localparam for specific instructions
     localparam [6:0] NOP = 7'b0000000;
@@ -50,10 +49,11 @@ module controller(input clk, input rst_n,
     localparam [2:0] XOR = 3'b111;
 
     // status bit
-    reg Z = status_reg[31];
-    reg N = status_reg[30];
-    reg C = status_reg[29];
-    reg V = status_reg[28];
+    reg N, Z, C, V;
+    assign N = status_reg[31];
+    assign Z = status_reg[30];
+    assign C = status_reg[29];
+    assign V = status_reg[28];
 
     // reg for state
     reg [3:0] state;
@@ -82,7 +82,7 @@ module controller(input clk, input rst_n,
     reg status_rdy_reg;
     reg load_ir_reg;
     reg load_pc_reg;
-    reg sel_pc_reg;
+    reg [1:0] sel_pc_reg;
     reg load_addr_reg;
     reg [10:0] ram_addr1_reg;
     reg [10:0] ram_addr2_reg;
@@ -130,9 +130,6 @@ module controller(input clk, input rst_n,
                 load_pc_start: begin
                     state <= fetch;
                 end
-                load_pc_loop: begin
-                    state <= fetch;
-                end
                 fetch: begin
                     state <= fetch_wait;
                 end
@@ -143,16 +140,16 @@ module controller(input clk, input rst_n,
                     state <= execute;
                 end
                 execute: begin
-                    state <= memory;
+                    state <= memory_increment_pc;
                 end
-                memory: begin
+                memory_increment_pc: begin
                     state <= memory_wait;
                 end
                 memory_wait: begin
                     state <= write_back;
                 end
                 write_back: begin
-                    state <= load_pc_loop;
+                    state <= fetch;
                     start <= 1'b0; //end of cycle
                 end
                 default: begin
@@ -202,11 +199,6 @@ module controller(input clk, input rst_n,
                 waiting_reg = 1'b1;
                 load_pc_reg = 1'b1;
                 sel_pc_reg = 2'b01;
-            end
-            load_pc_loop: begin
-                waiting_reg = 1'b1;
-                load_pc_reg = 1'b1;
-                sel_pc_reg = 2'b00;
             end
             fetch: begin            //fetch from ram
                 waiting_reg = 1'b1;
@@ -308,14 +300,36 @@ module controller(input clk, input rst_n,
                     end
                 end else if (opcode[6:3] == 4'b1000) begin  //branching
                     //stuff
+                    //sel_A_in
+                    //sel_B_in
+
+                    //en_A
+                    en_A_reg = 1'b0;
+
+                    //en_B
+                    if (opcode[1] == 1'b1) begin
+                        en_B_reg = 1'b1;
+                    end
+
+                    // sel_shift_in, sel_shift, en_S
+                    en_S_reg = 1'b1;        //TODO: doesnt affect anything for MOV_I BUT should be changed -> right now too lazy to change tb
+                    //sel_shift
+                    sel_shift_reg = 1'b1;
+                    //sel_shift_in TODO: change later when do forwarding
+                    sel_shift_in_reg = 2'b11;
                 end
             end
-            memory: begin
+            memory_increment_pc: begin
                 waiting_reg = 1'b1;
                 en_C_reg = 1'b1;
 
                 //normal instructions
                 if (opcode[6] == 0 && cond != 4'b1111)  begin
+
+                    //increment PC
+                    sel_pc_reg = 2'b00;
+                    load_pc_reg = 1'b1;
+
                     //ALU_op
                     case (opcode[2:0])
                         3'b000: ALU_op_reg = ADD;
@@ -366,6 +380,10 @@ module controller(input clk, input rst_n,
                     ram_memory
                     */
 
+                    //increment PC
+                    sel_pc_reg = 2'b00;
+                    load_pc_reg = 1'b1;
+
                     //ALU_op
                     case (U)
                     1'b0: ALU_op_reg = SUB;
@@ -403,7 +421,7 @@ module controller(input clk, input rst_n,
                     end else begin //LDR
                         ram_w_en2_reg = 1'b0;
                     end
-                end else if (opcode[6:3] == 4'b1000) begin  //branching
+                end else if (opcode[6:3] == 4'b1001) begin  //branching
                     //chaging sel_pc if condition matches the status register
                     if ((cond == 4'b0000 && Z) || 
                         (cond == 4'b0001 && ~Z) || 
@@ -417,13 +435,16 @@ module controller(input clk, input rst_n,
                         (cond == 4'b1001 && ~C || Z) || 
                         (cond == 4'b1010 && N == V) || 
                         (cond == 4'b1011 && N != V) || 
-                        (cond == 4'b1100 && ~Z && (N == V)) || 
-                        (cond == 4'b1101 && Z || (N != V)) || 
+                        (cond == 4'b1100 && (~Z && (N == V))) || 
+                        (cond == 4'b1101 && (Z || (N != V))) || 
                         (cond == 4'b1110)) begin
 
                         sel_pc_reg = 2'b11;
                         load_pc_reg = 1'b1;
-                    end
+                        end else begin
+                            sel_pc_reg = 2'b00;
+                            load_pc_reg = 1'b1;
+                        end
 
                     //write to LR is applicable
                     if (opcode[2] == 1'b1) begin
@@ -432,7 +453,25 @@ module controller(input clk, input rst_n,
                         forward_w_data_reg = 1'b0;
                         sel_w_addr1_reg = 1'b1;
                     end
-                        
+
+                    //ALU_op
+                    ALU_op_reg = ADD;
+
+                    //sel_A
+                    sel_A_reg = 1'b1;
+
+                    //sel_B
+                    if (opcode[1] == 1'b1) begin
+                        sel_B_reg = 1'b0;
+                    end else begin
+                        sel_B_reg = 1'b1;
+                    end
+
+                    //sel_post_indexing
+                    sel_post_indexing_reg = 1'b0;
+
+                    //en_status
+                    en_status_reg = 1'b0;
                 end
             end
             memory_wait: begin
