@@ -7,7 +7,7 @@ module datapath(input clk, input [31:0] ram_data2, input forward_w_data, input s
                 input [1:0] shift_op, input en_S,
                 input sel_A, input sel_B, input sel_post_indexing, input [31:0] imme_data,
                 input [2:0] ALU_op, input en_status, input status_rdy,                                                //datapath inputs
-                output [31:0] datapath_out, output [31:0] status_out, output [31:0] str_data, output [10:0] .PC(pc_out));      //datapath outputs
+                output [31:0] datapath_out, output [31:0] status_out, output [31:0] str_data, output [10:0] PC);      //datapath outputs
   
     // --- internal wires ---
     //regfile

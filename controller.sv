@@ -192,6 +192,9 @@ module controller(input clk, input rst_n,
 
         //state behaviour for outputi
         case (state)
+            default: begin
+                waiting_reg = 1'b1;
+            end
             reset: begin
                 waiting_reg = 1'b1;
             end

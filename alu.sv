@@ -11,36 +11,55 @@ module ALU(input [31:0] val_A, input [31:0] val_B, input [2:0] ALU_op, output [3
   assign flags = out2;
 
   always_comb begin
-    out2 = 32'd0;
+    //out2 = 32'd0;
     case (ALU_op)
       3'b000: begin // Addition
         out1 = $signed(val_A) + $signed(val_B);
         out2[28] = ((val_A[31] & val_B[31] & ~out1[31]) | (~val_A[31] & ~val_B[31] & out1[31]));
+        out2[27:0] = 0; // [27:0] are not used
+        out2[31:29] = 0; // [31:29] are not used
+        temp = 0;
       end
       3'b001: begin // Subtraction
         out1 = $signed(val_A) - $signed(val_B);
         out2[28] = ((val_A[31] ^ val_B[31] & out1[31]) != val_A[31]);
+        out2[27:0] = 0; // [27:0] are not used
+        out2[31:29] = 0; // [31:29] are not used
+        temp = 0;
       end
       3'b010: begin // AND
         out1 = val_A & val_B;
+        out2 = 0;
+        temp = 0;
       end
       3'b011: begin // OR
         out1 = val_A | val_B;
+        out2 = 0;
+        temp = 0;
       end
       3'b100: begin // Multiplication
         temp = $signed(val_A) * $signed(val_B);
         out1 = temp[31:0];
         out2[28] = (temp[63:32] != 32'h0 && temp[63:32] != 32'hFFFFFFFF) || (temp[63] != temp[31]);
+        out2[27:0] = 0; // [27:0] are not used
+        out2[31:29] = 0; // [31:29] are not used
       end
       3'b101: begin // Division
         out1 = ($signed(val_B) == 0) ? 0 : $signed(val_A) / $signed(val_B);
         out2[29] = (val_B == 0) ? 1 : 0;
+        out2[28:0] = 0; // [27:0] are not used
+        out2[31:30] = 0; // [31:30] are not used
+        temp = 0;
       end
       3'b110: begin // NOT
         out1 = ~val_B;
+        out2 = 0;
+        temp = 0;
       end
       3'b111: begin // XOR
         out1 = val_A ^ val_B;
+        out2 = 0;
+        temp = 0;
       end
       default: begin
         out1 = val_A;
