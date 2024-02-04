@@ -83,9 +83,6 @@ module controller(input clk, input rst_n,
     reg load_ir_reg;
     reg load_pc_reg;
     reg [1:0] sel_pc_reg;
-    reg load_addr_reg;
-    reg [10:0] ram_addr1_reg;
-    reg [10:0] ram_addr2_reg;
     reg ram_w_en1_reg;
     reg ram_w_en2_reg;
 
@@ -113,9 +110,6 @@ module controller(input clk, input rst_n,
     assign load_ir = load_ir_reg;
     assign load_pc = load_pc_reg;
     assign sel_pc = sel_pc_reg;
-    assign load_addr = load_addr_reg;
-    assign ram_addr1 = ram_addr1_reg;
-    assign ram_addr2 = ram_addr2_reg;
     assign ram_w_en1 = ram_w_en1_reg;
     assign ram_w_en2 = ram_w_en2_reg;
 
@@ -184,9 +178,7 @@ module controller(input clk, input rst_n,
         status_rdy_reg = 1'b0;
         load_ir_reg = 1'b0;
         load_pc_reg = 1'b0;
-        load_addr_reg = 1'b0;
-        ram_addr1_reg = 11'b0;
-        ram_addr2_reg = 11'b0;
+        sel_pc_reg = 2'b00;
         ram_w_en1_reg = 1'b0;
         ram_w_en2_reg = 1'b0;
 
