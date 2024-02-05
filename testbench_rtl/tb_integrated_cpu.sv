@@ -78,7 +78,7 @@ module tb_integrated_cpu();
     initial begin
         //fill the duel memory with instructions: with the mov instructions
         $readmemb("C:/Users/richa/OneDrive - UBC/Documents/Personal_Projects/Winter_CPU_Project/ARM32CPU/memory_data/remakeCPUTests.memh",
-            DUT.duel_mem.altsyncram_component.m_default.altsyncram_inst.mem_data);
+            DUT.instruction_memory.altsyncram_component.m_default.altsyncram_inst.mem_data);
         
         reset;
         start_pc = 32'd0;
@@ -117,7 +117,7 @@ module tb_integrated_cpu();
 
         // ### LDR and STR tests ###
         $readmemb("C:/Users/richa/OneDrive - UBC/Documents/Personal_Projects/Winter_CPU_Project/ARM32CPU/memory_data/str_ldr_CPUTests.memh",
-            DUT.duel_mem.altsyncram_component.m_default.altsyncram_inst.mem_data);
+            DUT.instruction_memory.altsyncram_component.m_default.altsyncram_inst.mem_data);
         reset;
         start_pc = 32'd0;
         clkR;   //because loading start_pc is exctra cycle
@@ -155,7 +155,7 @@ module tb_integrated_cpu();
 
         // ### Branch tests ###
         $readmemb("C:/Users/richa/OneDrive - UBC/Documents/Personal_Projects/Winter_CPU_Project/ARM32CPU/memory_data/branchCPUTests.memh",
-            DUT.duel_mem.altsyncram_component.m_default.altsyncram_inst.mem_data);
+            DUT.instruction_memory.altsyncram_component.m_default.altsyncram_inst.mem_data);
         reset;
         start_pc = 32'd0;
         clkR;   //because loading start_pc is exctra cycle
@@ -194,7 +194,7 @@ module tb_integrated_cpu();
         
         //STR r0, r0, #1
         clkCycle;
-        check(11, DUT.duel_mem.altsyncram_component.m_default.altsyncram_inst.mem_data[10], 83);
+        check(11, DUT.data_memory.altsyncram_component.m_default.altsyncram_inst.mem_data[10], 83);
 
         //print final test results
         if (error_count == 0) begin
