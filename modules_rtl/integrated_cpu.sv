@@ -6,7 +6,6 @@ module integrated_cpu(input logic CLOCK_50, input logic [3:0] KEY, input logic [
     // cpu inputs
     reg clk;
     reg rst_n;
-    reg [10:0] start_pc;
     assign clk = CLOCK_50;
     assign rst_n = KEY[0];
     assign start_pc = {1'b0, SW};
@@ -20,6 +19,15 @@ module integrated_cpu(input logic CLOCK_50, input logic [3:0] KEY, input logic [
     wire [31:0] status_out;
     wire [31:0] datapath_out;
 
+    //TODO: remove later
+    wire [31:0] reg_output;
+    assign LEDR = reg_output[9:0];
+    assign HEX0 = status_out[6:0];
+    assign HEX1 = status_out[13:7];
+    assign HEX2 = status_out[20:14];
+    assign HEX3 = status_out[27:21];
+    assign HEX4 = status_out[31:28];
+
     // pc outputs
     wire [10:0] pc_out;
 
@@ -32,7 +40,7 @@ module integrated_cpu(input logic CLOCK_50, input logic [3:0] KEY, input logic [
         .clk(clk),
         .rst_n(rst_n),
         .instr(ram_data1),
-        .start_pc(start_pc),
+        .start_pc(11'b0),
         .ram_data2(ram_data2),
         .waiting(waiting),
         .ram_w_en1(ram_w_en1),
@@ -41,7 +49,8 @@ module integrated_cpu(input logic CLOCK_50, input logic [3:0] KEY, input logic [
         .ram_in2(ram_in2),
         .status_out(status_out),
         .datapath_out(datapath_out),
-        .pc_out(pc_out)
+        .pc_out(pc_out),
+        .reg_output(reg_output), .reg_addr(SW[3:0]) //TODO: remove later
     );
 
     //instruction_memory module

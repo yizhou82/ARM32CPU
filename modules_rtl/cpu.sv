@@ -1,7 +1,8 @@
 module cpu (input clk, input rst_n, input [31:0] instr, input [31:0] ram_data2, input [10:0] start_pc,
             output waiting,
             output ram_w_en1, output ram_w_en2, output [10:0] ram_addr2, output [31:0] ram_in2,
-            output [31:0] status_out, output [31:0] datapath_out, output [10:0] pc_out); //TODO: status_out may be removed
+            output [31:0] status_out, output [31:0] datapath_out, output [10:0] pc_out,
+            output [31:0] reg_output, input [3:0] reg_addr); //TODO: status_out may be removed
 
     // idecoder outputs
     reg [31:0] instr_reg;
@@ -25,11 +26,13 @@ module cpu (input clk, input rst_n, input [31:0] instr, input [31:0] ram_data2, 
     wire [31:0] datapath_out_dp;
     wire [31:0] str_data_dp;
     wire [10:0] pc_out_dp;
+    wire [31:0] reg_output_dp;
     assign status_out = status_out_dp;
     assign datapath_out = datapath_out_dp;
     assign pc_out = pc_out_dp;
     assign ram_addr2 = datapath_out_dp[10:0];
     assign ram_in2 = str_data_dp;
+    assign reg_output = reg_output_dp;
 
     // controller outputs
     wire waiting_ctrl;
@@ -107,7 +110,8 @@ module cpu (input clk, input rst_n, input [31:0] instr, input [31:0] ram_data2, 
         .datapath_out(datapath_out_dp),
         .status_out(status_out_dp),
         .str_data(str_data_dp),
-        .PC(pc_out_dp)
+        .PC(pc_out_dp),
+        .reg_output(reg_output_dp), .reg_addr(reg_addr) //TODO: remove later, this is only for testing
     );
 
     // controller module

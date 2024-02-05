@@ -3,7 +3,8 @@ module regfile(input clk, input [31:0] w_data1, input [3:0] w_addr1, input w_en1
             input [31:0] w_data3, input [3:0] w_addr3, input w_en3,
             input [3:0] A_addr, input [3:0] B_addr, input [3:0] shift_addr, input [3:0] str_addr,
             input [1:0] sel_pc, input load_pc, input [10:0] start_pc, input [10:0] dp_pc,
-            output [31:0] A_data, output [31:0] B_data, output [31:0] shift_data, output [31:0] str_data, output [10:0] pc_out);
+            output [31:0] A_data, output [31:0] B_data, output [31:0] shift_data, output [31:0] str_data, output [10:0] pc_out,
+            output [31:0] reg_output, input [3:0] reg_addr);
 
     /*
     *** About ***
@@ -45,6 +46,7 @@ module regfile(input clk, input [31:0] w_data1, input [3:0] w_addr1, input w_en1
     assign str_data = registeres[str_addr];
     assign pc_out = registeres[4'd15];
     assign pc_in = pc_out + 1;
+    assign reg_output = registeres[reg_addr]; //TODO: remove later, this is only for testing
 
     // write is sequential
     always_ff @(posedge clk) begin

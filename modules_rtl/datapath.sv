@@ -7,13 +7,18 @@ module datapath(input clk, input [31:0] ram_data2, input forward_w_data, input s
                 input [1:0] shift_op, input en_S,
                 input sel_A, input sel_B, input sel_post_indexing, input [31:0] imme_data,
                 input [2:0] ALU_op, input en_status, input status_rdy,                                                //datapath inputs
-                output [31:0] datapath_out, output [31:0] status_out, output [31:0] str_data, output [10:0] PC);      //datapath outputs
+                output [31:0] datapath_out, output [31:0] status_out, output [31:0] str_data, output [10:0] PC,     //datapath outputs
+                output [31:0] reg_output, input [3:0] reg_addr);    //TODO: remove later, this is only for testing  
   
     // --- internal wires ---
     //regfile
     wire [31:0] A_data, B_data, shift_data, w_data1;
     wire [3:0] w_addr1_in;
     wire [10:0] pc_out;
+    wire [31:0] reg_output_rf;
+    assign PC = pc_out;
+    assign reg_output = reg_output_rf;
+
     //shifter
     wire [31:0] shift_out;
     //register ALU
@@ -32,7 +37,8 @@ module datapath(input clk, input [31:0] ram_data2, input forward_w_data, input s
                     .w_addr2(w_addr2), .w_en2(w_en2), .w_data3(w_data3), .w_addr3(w_addr3), .w_en3(w_en3), 
                     .sel_pc(sel_pc), .load_pc(load_pc), .start_pc(start_pc), .dp_pc(ALU_out[10:0]),
                     .A_addr(A_addr), .B_addr(B_addr), .shift_addr(shift_addr), .str_addr(str_addr),
-                    .A_data(A_data), .B_data(B_data), .shift_data(shift_data), .str_data(str_data), .pc_out(pc_out));
+                    .A_data(A_data), .B_data(B_data), .shift_data(shift_data), .str_data(str_data), .pc_out(pc_out),
+                    .reg_output(reg_output_rf), .reg_addr(reg_addr));   //TODO: remove later
     shifter shifter(.shift_in(B_reg), .shift_op(shift_op), .shift_amt(S_reg), .shift_out(shift_out));
     ALU alu(.val_A(val_A), .val_B(val_B), .ALU_op(ALU_op), .ALU_out(ALU_out), .flags(status_in));
     status_reg_block status_reg(.clk(clk), .en_status(en_status), .status_rdy(status_rdy), .status_in(status_in), .status_out(status_out_reg));
