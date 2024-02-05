@@ -7,12 +7,28 @@ module tb_integrated_cpu();
     //cpu inputs
     reg clk, rst_n;
     reg [10:0] start_pc;
+    reg CLOCK_50;
+    reg [3:0] KEY;
+    reg [9:0] SW;
+    reg [6:0] HEX0, HEX1, HEX2, HEX3, HEX4, HEX5;
+    reg [9:0] LEDR;
+
+    assign CLOCK_50 = clk;
+    assign KEY[0] = rst_n;
+    assign SW = start_pc[9:0];
 
     //cpu module
     integrated_cpu DUT(
-        .clk(clk),
-        .rst_n(rst_n),
-        .start_pc(start_pc)
+        .CLOCK_50(CLOCK_50),
+        .KEY(KEY),
+        .SW(SW),
+        .HEX0(HEX0),
+        .HEX1(HEX1),
+        .HEX2(HEX2),
+        .HEX3(HEX3),
+        .HEX4(HEX4),
+        .HEX5(HEX5),
+        .LEDR(LEDR)
     );
 
     // Tasks
