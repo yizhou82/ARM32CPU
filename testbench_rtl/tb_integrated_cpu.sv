@@ -126,8 +126,10 @@ module tb_integrated_cpu();
         check(32'b01000000_00000000_00000000_00000000, status_out, 25);
 
         // ### LDR and STR tests ###
-        $readmemb("C:/Users/richa/OneDrive - UBC/Documents/Personal_Projects/Winter_CPU_Project/ARM32CPU/memory_data/str_ldr_CPUTests.memh",
+        $readmemb("C:/Users/richa/OneDrive - UBC/Documents/Personal_Projects/Winter_CPU_Project/ARM32CPU/memory_data/str_ldr_instr_CPUTests.memh",
             DUT.instruction_memory.altsyncram_component.m_default.altsyncram_inst.mem_data);
+        $readmemb("C:/Users/richa/OneDrive - UBC/Documents/Personal_Projects/Winter_CPU_Project/ARM32CPU/memory_data/str_ldr_data_CPUTests.memh",
+            DUT.data_memory.altsyncram_component.m_default.altsyncram_inst.mem_data);
         reset;
         clkR;   //because loading start_pc is exctra cycle
 
@@ -149,7 +151,7 @@ module tb_integrated_cpu();
 
         // STR_I r8, r0, #9 -> store 8 in address 29 -> 38 - 9 = 29 -> store 29 in r0
         clkCycle;
-        setRegAddr(8);
+        setRegAddr(0);
         check(29, reg_output, 43);
 
         //LDR_R r14, r0, r1 -> address = 29 -> write 28 to r0
@@ -161,7 +163,7 @@ module tb_integrated_cpu();
 
         //STR_R r9, r12, r2 LSL 3 -> address = 12 + 2 * 8 = 28 -> write 28 address 12
         clkCycle;
-        setRegAddr(9);
+        setRegAddr(12);
         check(28, reg_output, 46);
         
         // LDR_Lit r1, #8 -> PC == 20, write 10 to r1
