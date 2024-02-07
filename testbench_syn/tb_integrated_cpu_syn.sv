@@ -132,101 +132,107 @@ module tb_integrated_cpu_syn();
         clkCycle;
         check(32'b01000000_00000000_00000000_00000000, status_out, 25);
 
-        // // ### LDR and STR tests ###
-        // $readmemb("C:/Users/richa/OneDrive - UBC/Documents/Personal_Projects/Winter_CPU_Project/ARM32CPU/memory_data/str_ldr_instr_CPUTests.memb",
-        //     DUT.\instruction_memory|altsyncram_component|auto_generated|altsyncram1|ram_block3a0 .ram_core0.ram_core0.mem);
-        // $readmemb("C:/Users/richa/OneDrive - UBC/Documents/Personal_Projects/Winter_CPU_Project/ARM32CPU/memory_data/str_ldr_data_CPUTests.memb",
-        //     DUT.\data_memory|altsyncram_component|auto_generated|altsyncram1|ram_block3a0 .ram_core0.ram_core0.mem);
-        // reset;
-        // clkR;   //because loading start_pc is exctra cycle
+        // ### LDR and STR tests ###
+        $readmemb("C:/Users/richa/OneDrive - UBC/Documents/Personal_Projects/Winter_CPU_Project/ARM32CPU/memory_data/syn_data/str_ldr_instr_CPUTestsA.memb",
+            DUT.\instruction_memory|altsyncram_component|auto_generated|altsyncram1|ram_block3a0 .ram_core0.ram_core0.mem);
+        $readmemb("C:/Users/richa/OneDrive - UBC/Documents/Personal_Projects/Winter_CPU_Project/ARM32CPU/memory_data/syn_data/str_ldr_instr_CPUTestsB.memb",
+            DUT.\instruction_memory|altsyncram_component|auto_generated|altsyncram1|ram_block3a20 .ram_core0.ram_core0.mem);
+        $readmemb("C:/Users/richa/OneDrive - UBC/Documents/Personal_Projects/Winter_CPU_Project/ARM32CPU/memory_data/syn_data/str_ldr_data_CPUTestsA.memb",
+            DUT.\data_memory|altsyncram_component|auto_generated|altsyncram1|ram_block3a0 .ram_core0.ram_core0.mem);
+        $readmemb("C:/Users/richa/OneDrive - UBC/Documents/Personal_Projects/Winter_CPU_Project/ARM32CPU/memory_data/syn_data/str_ldr_data_CPUTestsB.memb",
+            DUT.\data_memory|altsyncram_component|auto_generated|altsyncram1|ram_block3a10 .ram_core0.ram_core0.mem);
+        reset;
+        clkR;   //because loading start_pc is exctra cycle
 
-        // // Fill each register with default values
-        // for (i = 0; i < 15; i = i + 1) begin
-        //     clkCycle;
-        //     setRegAddr(i);
-        //     check(i, reg_output, i + 26);
-        // end
+        // Fill each register with default values
+        for (i = 0; i < 15; i = i + 1) begin
+            clkCycle;
+            setRegAddr(i);
+            check(i, reg_output, i + 26);
+        end
 
-        // //filler instruction
-        // clkCycle;
+        //filler instruction
+        clkCycle;
 
-        // // LDR_I r0, r9, #19
-        // clkCycle;
-        // clkR;   //because the actual LDR writeback is done on the very very last clk edge
-        // setRegAddr(0);
-        // check(38, reg_output, 42);
+        // LDR_I r0, r9, #19
+        clkCycle;
+        clkR;   //because the actual LDR writeback is done on the very very last clk edge
+        setRegAddr(0);
+        check(38, reg_output, 42);
 
-        // // STR_I r8, r0, #9 -> store 8 in address 29 -> 38 - 9 = 29 -> store 29 in r0
-        // clkCycle;
-        // setRegAddr(0);
-        // check(29, reg_output, 43);
+        // STR_I r8, r0, #9 -> store 8 in address 29 -> 38 - 9 = 29 -> store 29 in r0
+        clkCycle;
+        setRegAddr(0);
+        check(29, reg_output, 43);
 
-        // //LDR_R r14, r0, r1 -> address = 29 -> write 28 to r0
-        // clkCycle;
-        // setRegAddr(0);
-        // check(28, reg_output, 44);
-        // setRegAddr(14);
-        // check(8, reg_output, 45);
+        //LDR_R r14, r0, r1 -> address = 29 -> write 28 to r0
+        clkCycle;
+        setRegAddr(0);
+        check(28, reg_output, 44);
+        setRegAddr(14);
+        check(8, reg_output, 45);
 
-        // //STR_R r9, r12, r2 LSL 3 -> address = 12 + 2 * 8 = 28 -> write 28 address 12
-        // clkCycle;
-        // setRegAddr(12);
-        // check(28, reg_output, 46);
+        //STR_R r9, r12, r2 LSL 3 -> address = 12 + 2 * 8 = 28 -> write 28 address 12
+        clkCycle;
+        setRegAddr(12);
+        check(28, reg_output, 46);
         
-        // // LDR_Lit r1, #8 -> PC == 20, write 10 to r1
-        // clkCycle;
-        // setRegAddr(1);
-        // check(10, reg_output, 47);
+        // LDR_Lit r1, #8 -> PC == 20, write 10 to r1
+        clkCycle;
+        setRegAddr(1);
+        check(10, reg_output, 47);
 
-        // // ### Branch tests ###
-        // $readmemb("C:/Users/richa/OneDrive - UBC/Documents/Personal_Projects/Winter_CPU_Project/ARM32CPU/memory_data/branchCPUTests.memb",
-        //     DUT.\instruction_memory|altsyncram_component|auto_generated|altsyncram1|ram_block3a0 .ram_core0.ram_core0.mem);
-        // reset;
-        // clkR;   //because loading start_pc is exctra cycle
+        // ### Branch tests ###
+        $readmemb("C:/Users/richa/OneDrive - UBC/Documents/Personal_Projects/Winter_CPU_Project/ARM32CPU/memory_data/syn_data/branchCPUTestsA.memb",
+            DUT.\instruction_memory|altsyncram_component|auto_generated|altsyncram1|ram_block3a0 .ram_core0.ram_core0.mem);
+        $readmemb("C:/Users/richa/OneDrive - UBC/Documents/Personal_Projects/Winter_CPU_Project/ARM32CPU/memory_data/syn_data/branchCPUTestsB.memb",
+            DUT.\instruction_memory|altsyncram_component|auto_generated|altsyncram1|ram_block3a20 .ram_core0.ram_core0.mem);
+        reset;
+        clkR;   //because loading start_pc is exctra cycle
 
-        // //MOV_I r0, #1
-        // clkCycle;
-        // setRegAddr(0);
-        // check(1, reg_output, 48);
+        //MOV_I r0, #1
+        clkCycle;
+        setRegAddr(0);
+        check(1, reg_output, 48);
 
-        // //MOV_I r1, #10
-        // clkCycle;
-        // setRegAddr(1);
-        // check(10, reg_output, 49);
+        //MOV_I r1, #10
+        clkCycle;
+        setRegAddr(1);
+        check(10, reg_output, 49);
 
-        // //ADD r0, r0, #1
-        // //CMP r0, r1
-        // //BLE #2
-        // for (i = 0; i < 8; i = i + 1) begin
-        //     clkCycle;
-        //     setRegAddr(0);
-        //     check(2 + i, reg_output, i * 3 + 50);
-        //     clkCycle;
-        //     check(32'b10000000_00000000_00000000_00000000, status_out, (i * 3) + 51);
-        //     clkCycle;
-        //     setRegAddr(15);
-        //     check(2, reg_output, (i * 3) + 52);
-        // end
-        // clkCycle;
-        // setRegAddr(0);
-        // check(10, reg_output, 77);
-        // clkCycle;   //r0 == r1
-        // check(32'b01000000_00000000_00000000_00000000, status_out, 78);
-        // clkCycle;
-        // setRegAddr(15);
-        // check(2, reg_output, 79);
-        // clkCycle;
-        // setRegAddr(0);
-        // check(11, reg_output, 80);
-        // clkCycle;   //r0 > r1
-        // check(32'b00000000_00000000_00000000_00000000, status_out, 81);
-        // clkCycle;
-        // setRegAddr(15);
-        // check(5, reg_output, 82);
+        //ADD r0, r0, #1
+        //CMP r0, r1
+        //BLE #2
+        for (i = 0; i < 8; i = i + 1) begin
+            clkCycle;
+            setRegAddr(0);
+            check(2 + i, reg_output, i * 3 + 50);
+            clkCycle;
+            check(32'b10000000_00000000_00000000_00000000, status_out, (i * 3) + 51);
+            clkCycle;
+            setRegAddr(15);
+            check(2, reg_output, (i * 3) + 52);
+        end
+        clkCycle;
+        setRegAddr(0);
+        check(10, reg_output, 77);
+        clkCycle;   //r0 == r1
+        check(32'b01000000_00000000_00000000_00000000, status_out, 78);
+        clkCycle;
+        setRegAddr(15);
+        check(2, reg_output, 79);
+        clkCycle;
+        setRegAddr(0);
+        check(11, reg_output, 80);
+        clkCycle;   //r0 > r1
+        check(32'b00000000_00000000_00000000_00000000, status_out, 81);
+        clkCycle;
+        setRegAddr(15);
+        check(5, reg_output, 82);
         
-        // //STR r0, r0, #1
-        // clkCycle;
-        // check(11, DUT.\data_memory|altsyncram_component|auto_generated|altsyncram1|ram_block3a0 .ram_core0.ram_core0.mem[10], 83);
+        //STR r0, r0, #1
+        clkCycle;
+        check(11, DUT.\data_memory|altsyncram_component|auto_generated|altsyncram1|ram_block3a10 .ram_core0.ram_core0.mem[10], 83);
 
         //print final test results
         if (error_count == 0) begin
