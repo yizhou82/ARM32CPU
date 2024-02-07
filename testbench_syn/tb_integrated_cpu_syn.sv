@@ -6,7 +6,7 @@ module tb_integrated_cpu_syn();
     integer error_count = 0;
 
     //cpu inputs
-    reg clk, rst_n;
+    reg clk, rst_n, sel_instr;
     reg CLOCK_50;
     reg [3:0] KEY;
     reg [9:0] SW;
@@ -32,6 +32,7 @@ module tb_integrated_cpu_syn();
 
     assign CLOCK_50 = clk;
     assign KEY[0] = rst_n;
+    assign KEY[1] = sel_instr;
     assign SW = { 6'b0, reg_addr};
     assign status_out = {HEX4[3:0], HEX3, HEX2, HEX1, HEX0};
     assign reg_output = LEDR;
@@ -89,12 +90,13 @@ module tb_integrated_cpu_syn();
     integer i = 0;
     initial begin
         //fill the duel memory with instructions: with the mov instructions
-        $readmemb("C:/Users/richa/OneDrive - UBC/Documents/Personal_Projects/Winter_CPU_Project/ARM32CPU/memory_data/syn_data/remakeCPUTestsB.memb",
-            DUT.\instruction_memory|altsyncram_component|auto_generated|altsyncram1|ram_block3a0 .ram_core0.ram_core0.mem);
         $readmemb("C:/Users/richa/OneDrive - UBC/Documents/Personal_Projects/Winter_CPU_Project/ARM32CPU/memory_data/syn_data/remakeCPUTestsA.memb",
-            DUT.\instruction_memory|altsyncram_component|auto_generated|altsyncram1|ram_block3a2 .ram_core0.ram_core0.mem);
+            DUT.\instruction_memory|altsyncram_component|auto_generated|altsyncram1|ram_block3a0 .ram_core0.ram_core0.mem);
+        $readmemb("C:/Users/richa/OneDrive - UBC/Documents/Personal_Projects/Winter_CPU_Project/ARM32CPU/memory_data/syn_data/remakeCPUTestsB.memb",
+            DUT.\instruction_memory|altsyncram_component|auto_generated|altsyncram1|ram_block3a20 .ram_core0.ram_core0.mem);
         
         reset;
+        sel_instr = 1'b0;
 
         // Fill each register with default values
         for (i = 0; i < 15; i = i + 1) begin
@@ -118,6 +120,8 @@ module tb_integrated_cpu_syn();
 
         // ADD_RS r2, r2, r0, LSL r0
         clkCycle;
+        setRegAddr(2);
+        check(11, reg_output, 20);
         check(0, status_out, 21);
 
         // CMP_R r2, r1, LSL #1 (r2 = 11, r1 = 10 -> 20)
