@@ -6,8 +6,10 @@ module integrated_cpu(input logic CLOCK_50, input logic [3:0] KEY, input logic [
     // cpu inputs
     reg clk;
     reg rst_n;
+    reg sel_instr;
     assign clk = CLOCK_50;
     assign rst_n = KEY[0];
+    assign sel_instr = KEY[1];
     assign start_pc = {1'b0, SW};
 
     // cpu outputs
@@ -19,21 +21,21 @@ module integrated_cpu(input logic CLOCK_50, input logic [3:0] KEY, input logic [
     wire [31:0] status_out;
     wire [31:0] datapath_out;
 
-    //TODO: remove later
-    wire [31:0] reg_output;
-    assign LEDR = reg_output[9:0];
-    assign HEX0 = status_out[6:0];
-    assign HEX1 = status_out[13:7];
-    assign HEX2 = status_out[20:14];
-    assign HEX3 = status_out[27:21];
-    assign HEX4 = status_out[31:28];
-
     // pc outputs
     wire [10:0] pc_out;
 
     // duel_ram outputs
     wire [31:0] ram_data1;
     wire [31:0] ram_data2;
+
+    //TODO: remove later
+    wire [31:0] reg_output;
+    assign LEDR = reg_output[9:0];
+    assign HEX0 = (sel_instr == 1'b1) ? ram_data1[6:0] : status_out[6:0];
+    assign HEX1 = (sel_instr == 1'b1) ? ram_data1[13:7] : status_out[13:7];
+    assign HEX2 = (sel_instr == 1'b1) ? ram_data1[20:14] : status_out[20:14];
+    assign HEX3 = (sel_instr == 1'b1) ? ram_data1[27:21] : status_out[27:21];
+    assign HEX4 = (sel_instr == 1'b1) ? ram_data1[31:28] : status_out[31:28];
 
     // cpu module
     cpu cpu(
