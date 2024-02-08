@@ -132,7 +132,7 @@ module tb_integrated_cpu_syn();
         clkCycle;
         check(32'b01000000_00000000_00000000_00000000, status_out, 25);
 
-        // ### LDR and STR tests ###
+        // ### LDR and STR tests ### USED mem_dist == 12
         $readmemb("C:/Users/richa/OneDrive - UBC/Documents/Personal_Projects/Winter_CPU_Project/ARM32CPU/memory_data/syn_data/str_ldr_instr_CPUTestsA.memb",
             DUT.\instruction_memory|altsyncram_component|auto_generated|altsyncram1|ram_block3a0 .ram_core0.ram_core0.mem);
         $readmemb("C:/Users/richa/OneDrive - UBC/Documents/Personal_Projects/Winter_CPU_Project/ARM32CPU/memory_data/syn_data/str_ldr_instr_CPUTestsB.memb",
@@ -143,14 +143,14 @@ module tb_integrated_cpu_syn();
             DUT.\data_memory|altsyncram_component|auto_generated|altsyncram1|ram_block3a10 .ram_core0.ram_core0.mem);
         reset;
         clkR;   //because loading start_pc is exctra cycle
-
+        sel_instr = 1'b1;
         // Fill each register with default values
         for (i = 0; i < 15; i = i + 1) begin
             clkCycle;
             setRegAddr(i);
             check(i, reg_output, i + 26);
         end
-
+        sel_instr = 1'b0;
         //filler instruction
         clkCycle;
 
@@ -232,7 +232,7 @@ module tb_integrated_cpu_syn();
         
         //STR r0, r0, #1
         clkCycle;
-        check(11, DUT.\data_memory|altsyncram_component|auto_generated|altsyncram1|ram_block3a10 .ram_core0.ram_core0.mem[10], 83);
+        check(11, DUT.\data_memory|altsyncram_component|auto_generated|altsyncram1|ram_block3a0 .ram_core0.ram_core0.mem[10], 83);
 
         //print final test results
         if (error_count == 0) begin
