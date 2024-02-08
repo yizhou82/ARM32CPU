@@ -78,8 +78,8 @@ module tb_integrated_cpu_syn();
     integer i = 0;
     initial begin
         //fill the duel memory with instructions: with the mov instructions
-        // $readmemb("C:/Users/richa/OneDrive - UBC/Documents/Personal_Projects/Winter_CPU_Project/ARM32CPU/memory_data/remakeCPUTests.memh",
-        //     DUT.\duel_mem|altsyncram_component|auto_generated|altsyncram1|ram_block3a0 .ram_core0.ram_core0.mem);
+        $readmemb("C:/Users/richa/OneDrive - UBC/Documents/Personal_Projects/Winter_CPU_Project/ARM32CPU/memory_data/remakeCPUTests.memh",
+            DUT.\instruction_memory|altsyncram_component|auto_generated|altsyncram1|ram_block3a0 .ram_core0.ram_core0.mem);
         
         reset;
         start_pc = 32'd0;
@@ -118,7 +118,7 @@ module tb_integrated_cpu_syn();
 
         // // ### LDR and STR tests ###
         // $readmemb("C:/Users/richa/OneDrive - UBC/Documents/Personal_Projects/Winter_CPU_Project/ARM32CPU/memory_data/str_ldr_CPUTests.memh",
-        //     DUT.\duel_mem|altsyncram_component|auto_generated|altsyncram1|ram_block3a0 .ram_core0.ram_core0.mem);
+        //     DUT.\instruction_memory|altsyncram_component|auto_generated|altsyncram1|ram_block3a0 .ram_core0.ram_core0.mem);
         // reset;
         // start_pc = 32'd0;
         // clkR;   //because loading start_pc is exctra cycle
@@ -156,7 +156,7 @@ module tb_integrated_cpu_syn();
 
         // // ### Branch tests ###
         // $readmemb("C:/Users/richa/OneDrive - UBC/Documents/Personal_Projects/Winter_CPU_Project/ARM32CPU/memory_data/branchCPUTests.memh",
-        //     DUT.\duel_mem|altsyncram_component|auto_generated|altsyncram1|ram_block3a0 .ram_core0.ram_core0.mem);
+        //     DUT.\instruction_memory|altsyncram_component|auto_generated|altsyncram1|ram_block3a0 .ram_core0.ram_core0.mem);
         // reset;
         // start_pc = 32'd0;
         // clkR;   //because loading start_pc is exctra cycle
@@ -195,13 +195,13 @@ module tb_integrated_cpu_syn();
         
         // //STR r0, r0, #1
         // clkCycle;
-        // check(11, DUT.\duel_mem|altsyncram_component|auto_generated|altsyncram1|ram_block3a0 .ram_core0.ram_core0.mem[10], 83);
+        // check(11, DUT.\data_memory|altsyncram_component|auto_generated|altsyncram1|ram_block3a0 .ram_core0.ram_core0.mem[10], 83);
 
-        //print final test results
-        if (error_count == 0) begin
-            $display("All tests passed!");
-        end else begin
-            $display("%d tests failed.", error_count);
-        end
+        // //print final test results
+        // if (error_count == 0) begin
+        //     $display("All tests passed!");
+        // end else begin
+        //     $display("%d tests failed.", error_count);
+        // end
     end
 endmodule: tb_integrated_cpu_syn
