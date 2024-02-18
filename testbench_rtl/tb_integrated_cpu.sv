@@ -5,7 +5,7 @@ module tb_integrated_cpu();
     integer error_count = 0;
 
     //cpu inputs
-    reg clk, rst_n;
+    reg clk, rst_n, sel_instr;
     reg CLOCK_50;
     reg [3:0] KEY;
     reg [9:0] SW;
@@ -31,6 +31,7 @@ module tb_integrated_cpu();
 
     assign CLOCK_50 = clk;
     assign KEY[0] = rst_n;
+    assign KEY[1] = sel_instr;
     assign SW = { 6'b0, reg_addr};
     assign status_out = {HEX4[3:0], HEX3, HEX2, HEX1, HEX0};
     assign reg_output = LEDR;
@@ -88,10 +89,12 @@ module tb_integrated_cpu();
     integer i = 0;
     initial begin
         //fill the duel memory with instructions: with the mov instructions
-        $readmemb("C:/Users/richa/OneDrive - UBC/Documents/Personal_Projects/Winter_CPU_Project/ARM32CPU/memory_data/binary_data/remakeCPUTests.memb",
+        $readmemb("C:/Users/richa/OneDrive - UBC/Documents/Personal_Projects/Winter_CPU_Project/ARM32CPU/memory_data/rtl_data/remakeCPUTests.memb",
             DUT.instruction_memory.altsyncram_component.m_default.altsyncram_inst.mem_data);
         
         reset;
+        sel_instr = 1'b0;
+
 
         // Fill each register with default values
         for (i = 0; i < 15; i = i + 1) begin
@@ -126,9 +129,9 @@ module tb_integrated_cpu();
         check(32'b01000000_00000000_00000000_00000000, status_out, 25);
 
         // ### LDR and STR tests ###
-        $readmemb("C:/Users/richa/OneDrive - UBC/Documents/Personal_Projects/Winter_CPU_Project/ARM32CPU/memory_data/binary_data/str_ldr_instr_CPUTests.memb",
+        $readmemb("C:/Users/richa/OneDrive - UBC/Documents/Personal_Projects/Winter_CPU_Project/ARM32CPU/memory_data/rtl_data/str_ldr_instr_CPUTests.memb",
             DUT.instruction_memory.altsyncram_component.m_default.altsyncram_inst.mem_data);
-        $readmemb("C:/Users/richa/OneDrive - UBC/Documents/Personal_Projects/Winter_CPU_Project/ARM32CPU/memory_data/binary_data/str_ldr_data_CPUTests.memb",
+        $readmemb("C:/Users/richa/OneDrive - UBC/Documents/Personal_Projects/Winter_CPU_Project/ARM32CPU/memory_data/rtl_data/str_ldr_data_CPUTests.memb",
             DUT.data_memory.altsyncram_component.m_default.altsyncram_inst.mem_data);
         reset;
         clkR;   //because loading start_pc is exctra cycle
@@ -172,7 +175,7 @@ module tb_integrated_cpu();
         check(10, reg_output, 47);
 
         // ### Branch tests ###
-        $readmemb("C:/Users/richa/OneDrive - UBC/Documents/Personal_Projects/Winter_CPU_Project/ARM32CPU/memory_data/binary_data/branchCPUTests.memb",
+        $readmemb("C:/Users/richa/OneDrive - UBC/Documents/Personal_Projects/Winter_CPU_Project/ARM32CPU/memory_data/rtl_data/branchCPUTests.memb",
             DUT.instruction_memory.altsyncram_component.m_default.altsyncram_inst.mem_data);
         reset;
         clkR;   //because loading start_pc is exctra cycle

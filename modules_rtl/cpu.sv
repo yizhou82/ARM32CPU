@@ -36,7 +36,7 @@ module cpu (input clk, input rst_n, input [31:0] instr, input [31:0] ram_data2, 
 
     // controller outputs
     wire waiting_ctrl;
-    wire w_en1, w_en2, w_en3, forward_w_data, sel_w_addr1;
+    wire w_en1, w_en2, w_en_ldr, sel_load_LR;
     wire [1:0] sel_A_in, sel_B_in, sel_shift_in;
     wire sel_shift;
     wire wb_sel;
@@ -74,16 +74,15 @@ module cpu (input clk, input rst_n, input [31:0] instr, input [31:0] ram_data2, 
     // datapath module
     datapath datapath(
         .clk(clk),
-        .ram_data2(ram_data2),
-        .forward_w_data(forward_w_data),
-        .sel_w_addr1(sel_w_addr1),
+        .LR_in(ram_data2),
+        .sel_load_LR(sel_load_LR),
         .w_addr1(rd),
         .w_en1(w_en1),
         .w_addr2(rn),
         .w_en2(w_en2),
-        .w_addr3(rt),   //for LDR
-        .w_en3(w_en3),
-        .w_data3(ram_data2),  //for LDR
+        .w_addr_ldr(rt),   //for LDR
+        .w_en_ldr(w_en_ldr),
+        .w_data_ldr(ram_data2),  //for LDR
         .A_addr(rn),
         .B_addr(rm),
         .shift_addr(rs),
@@ -128,9 +127,8 @@ module cpu (input clk, input rst_n, input [31:0] instr, input [31:0] ram_data2, 
         .waiting(waiting_ctrl),
         .w_en1(w_en1),
         .w_en2(w_en2),
-        .w_en3(w_en3),
-        .forward_w_data(forward_w_data),
-        .sel_w_addr1(sel_w_addr1),
+        .w_en_ldr(w_en_ldr),
+        .sel_load_LR(sel_load_LR),
         .sel_A_in(sel_A_in),
         .sel_B_in(sel_B_in),
         .sel_shift_in(sel_shift_in),

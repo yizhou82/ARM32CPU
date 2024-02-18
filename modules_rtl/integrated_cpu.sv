@@ -58,9 +58,9 @@ module integrated_cpu(input logic CLOCK_50, input logic [3:0] KEY, input logic [
     //instruction_memory module
     instr_mem instruction_memory(
         .clock(clk),
-        .address(pc_out),
-        .data(32'b0),
         .wren(ram_w_en1),
+        .address(pc_out[6:0]),
+        .data(32'b0),
         .q(ram_data1)
     );
 
@@ -68,7 +68,7 @@ module integrated_cpu(input logic CLOCK_50, input logic [3:0] KEY, input logic [
     data_mem data_memory(
         .clock(clk),
         .wren(ram_w_en2),
-        .address(ram_addr2),
+        .address(ram_addr2[6:0]),
         .data(ram_in2),
         .q(ram_data2)
     );
