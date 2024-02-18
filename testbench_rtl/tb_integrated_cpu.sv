@@ -5,7 +5,7 @@ module tb_integrated_cpu();
     integer error_count = 0;
 
     //cpu inputs
-    reg clk, rst_n;
+    reg clk, rst_n, sel_instr;
     reg CLOCK_50;
     reg [3:0] KEY;
     reg [9:0] SW;
@@ -31,6 +31,7 @@ module tb_integrated_cpu();
 
     assign CLOCK_50 = clk;
     assign KEY[0] = rst_n;
+    assign KEY[1] = sel_instr;
     assign SW = { 6'b0, reg_addr};
     assign status_out = {HEX4[3:0], HEX3, HEX2, HEX1, HEX0};
     assign reg_output = LEDR;
@@ -92,6 +93,8 @@ module tb_integrated_cpu();
             DUT.instruction_memory.altsyncram_component.m_default.altsyncram_inst.mem_data);
         
         reset;
+        sel_instr = 1'b0;
+
 
         // Fill each register with default values
         for (i = 0; i < 15; i = i + 1) begin
