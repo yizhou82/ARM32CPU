@@ -1,6 +1,6 @@
-module datapath(input clk, input [31:0] ram_data2, input forward_w_data, input sel_w_addr1,
-                input [3:0] w_addr1, input w_en1, input [3:0] w_addr2, input w_en2, input [3:0] w_addr3, input w_en3,                           //regfile write inputs
-                input [31:0] w_data3, input [3:0] A_addr, input [3:0] B_addr, input [3:0] shift_addr, input [3:0] str_addr,                     //end of regfile inputs
+module datapath(input clk, input [31:0] LR_in, input sel_load_LR,
+                input [3:0] w_addr1, input w_en1, input [3:0] w_addr2, input w_en2, input [3:0] w_addr_ldr, input w_en_ldr,                           //regfile write inputs
+                input [31:0] w_data_ldr, input [3:0] A_addr, input [3:0] B_addr, input [3:0] shift_addr, input [3:0] str_addr,                     //end of regfile inputs
                 input [1:0] sel_pc, input load_pc, input [10:0] start_pc,                                                                       //pc inputs
                 input [1:0] sel_A_in, input [1:0] sel_B_in, input [1:0] sel_shift_in,    //inputs for forwarding muxes
                 input en_A, input en_B, input [31:0] shift_imme, input sel_shift,
@@ -34,7 +34,7 @@ module datapath(input clk, input [31:0] ram_data2, input forward_w_data, input s
 
     //internal modules
     regfile regfile(.clk(clk), .w_data1(w_data1), .w_addr1(w_addr1_in), .w_en1(w_en1), .w_data2(ALU_out),
-                    .w_addr2(w_addr2), .w_en2(w_en2), .w_data3(w_data3), .w_addr3(w_addr3), .w_en3(w_en3), 
+                    .w_addr2(w_addr2), .w_en2(w_en2), .w_data_ldr(w_data_ldr), .w_addr_ldr(w_addr_ldr), .w_en_ldr(w_en_ldr), 
                     .sel_pc(sel_pc), .load_pc(load_pc), .start_pc(start_pc), .dp_pc(ALU_out[10:0]),
                     .A_addr(A_addr), .B_addr(B_addr), .shift_addr(shift_addr), .str_addr(str_addr),
                     .A_data(A_data), .B_data(B_data), .shift_data(shift_data), .str_data(str_data), .pc_out(pc_out),
@@ -45,8 +45,8 @@ module datapath(input clk, input [31:0] ram_data2, input forward_w_data, input s
 
     //muxes
     assign datapath_out = (sel_post_indexing == 1'b1) ? val_A : ALU_out;
-    assign w_data1 = (forward_w_data == 1'b1) ? ram_data2 : ALU_out;
-    assign w_addr1_in = (sel_w_addr1 == 1'b1) ? 4'd14 : w_addr1;
+    assign w_data1 = (sel_load_LR == 1'b1) ? LR_in : ALU_out;
+    assign w_addr1_in = (sel_load_LR == 1'b1) ? 4'd14 : w_addr1;
     assign val_A = (sel_A == 1'b1) ? 31'b0 : A_reg;
     assign val_B = (sel_B == 1'b1) ? imme_data : shift_out; 
     assign shift_amt = (sel_shift == 1'b1) ? shift_in: shift_imme;

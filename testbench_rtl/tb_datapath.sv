@@ -2,9 +2,9 @@ module tb_datapath(output err);
     // your implementation here
 
     //regs for testbench
-    reg [31:0] imme_data, shift_imme, PC, w_data1, w_data3, ram_data2;
-    reg [3:0] w_addr1, w_addr2, w_addr3, A_addr, B_addr, shift_addr, str_addr;
-    reg w_en1, w_en2, w_en3, clk, forward_w_data;
+    reg [31:0] imme_data, shift_imme, PC, w_data1, w_data_ldr, LR_in;
+    reg [3:0] w_addr1, w_addr2, w_addr_ldr, A_addr, B_addr, shift_addr, str_addr;
+    reg w_en1, w_en2, w_en_ldr, clk, sel_load_LR;
     reg en_A, en_B, en_S, en_status;
     reg [1:0] shift_op, sel_A_in, sel_B_in, sel_shift_in;
     reg sel_A, sel_B, sel_shift, sel_post_shift;
@@ -36,8 +36,8 @@ module tb_datapath(output err);
         begin
         //set all inputs to 0
         clk = 1'b0;
-        ram_data2 = 32'd0;
-        forward_w_data = 1'b0;
+        LR_in = 32'd0;
+        sel_load_LR = 1'b0;
         w_addr1 = 4'd0;
         w_addr2 = 4'd0;
         w_en1 = 1'b0;
@@ -68,15 +68,15 @@ module tb_datapath(output err);
     // DUT
     datapath DUT(
         .clk(clk),
-        .ram_data2(ram_data2),
-        .forward_w_data(forward_w_data),
+        .LR_in(LR_in),
+        .sel_load_LR(sel_load_LR),
         .w_addr1(w_addr1),
         .w_en1(w_en1),
         .w_addr2(w_addr2),
         .w_en2(w_en2),
-        .w_addr3(w_addr3),
-        .w_en3(w_en3),
-        .w_data3(w_data3),
+        .w_addr_ldr(w_addr_ldr),
+        .w_en_ldr(w_en_ldr),
+        .w_data_ldr(w_data_ldr),
         .A_addr(A_addr),
         .B_addr(B_addr),
         .shift_addr(shift_addr),
@@ -145,8 +145,8 @@ module tb_datapath(output err);
 
         // write values to every register
         for (i = 0; i < 16; i = i + 1) begin
-            ram_data2 = i;
-            forward_w_data = 1'b1;
+            LR_in = i;
+            sel_load_LR = 1'b1;
             w_addr1 = i;
             w_en1 = 1'b1;
             clkR;

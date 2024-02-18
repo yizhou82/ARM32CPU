@@ -11,7 +11,7 @@ module ALU(input [31:0] val_A, input [31:0] val_B, input [2:0] ALU_op, output [3
   assign flags = out2;
 
   always_comb begin
-    //out2 = 32'd0;
+    out2 = 32'd0;
     case (ALU_op)
       3'b000: begin // Addition
         out1 = $signed(val_A) + $signed(val_B);

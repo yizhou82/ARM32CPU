@@ -88,7 +88,7 @@ module tb_integrated_cpu();
     integer i = 0;
     initial begin
         //fill the duel memory with instructions: with the mov instructions
-        $readmemb("C:/Users/richa/OneDrive - UBC/Documents/Personal_Projects/Winter_CPU_Project/ARM32CPU/memory_data/binary_data/remakeCPUTests.memb",
+        $readmemb("C:/Users/richa/OneDrive - UBC/Documents/Personal_Projects/Winter_CPU_Project/ARM32CPU/memory_data/rtl_data/remakeCPUTests.memb",
             DUT.instruction_memory.altsyncram_component.m_default.altsyncram_inst.mem_data);
         
         reset;
@@ -126,9 +126,9 @@ module tb_integrated_cpu();
         check(32'b01000000_00000000_00000000_00000000, status_out, 25);
 
         // ### LDR and STR tests ###
-        $readmemb("C:/Users/richa/OneDrive - UBC/Documents/Personal_Projects/Winter_CPU_Project/ARM32CPU/memory_data/binary_data/str_ldr_instr_CPUTests.memb",
+        $readmemb("C:/Users/richa/OneDrive - UBC/Documents/Personal_Projects/Winter_CPU_Project/ARM32CPU/memory_data/rtl_data/str_ldr_instr_CPUTests.memb",
             DUT.instruction_memory.altsyncram_component.m_default.altsyncram_inst.mem_data);
-        $readmemb("C:/Users/richa/OneDrive - UBC/Documents/Personal_Projects/Winter_CPU_Project/ARM32CPU/memory_data/binary_data/str_ldr_data_CPUTests.memb",
+        $readmemb("C:/Users/richa/OneDrive - UBC/Documents/Personal_Projects/Winter_CPU_Project/ARM32CPU/memory_data/rtl_data/str_ldr_data_CPUTests.memb",
             DUT.data_memory.altsyncram_component.m_default.altsyncram_inst.mem_data);
         reset;
         clkR;   //because loading start_pc is exctra cycle
@@ -172,7 +172,7 @@ module tb_integrated_cpu();
         check(10, reg_output, 47);
 
         // ### Branch tests ###
-        $readmemb("C:/Users/richa/OneDrive - UBC/Documents/Personal_Projects/Winter_CPU_Project/ARM32CPU/memory_data/binary_data/branchCPUTests.memb",
+        $readmemb("C:/Users/richa/OneDrive - UBC/Documents/Personal_Projects/Winter_CPU_Project/ARM32CPU/memory_data/rtl_data/branchCPUTests.memb",
             DUT.instruction_memory.altsyncram_component.m_default.altsyncram_inst.mem_data);
         reset;
         clkR;   //because loading start_pc is exctra cycle

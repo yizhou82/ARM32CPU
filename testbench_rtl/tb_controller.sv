@@ -10,7 +10,7 @@ module tb_controller(output err);
     reg en_status_decode;
 
     wire waiting;
-    wire w_en1, w_en2, w_en3, sel_w_data;
+    wire w_en1, w_en2, w_en_ldr, sel_w_data;
     wire [1:0] sel_A_in, sel_B_in, sel_shift_in;
     wire sel_shift;
     wire en_A, en_B, en_C, en_S;
@@ -39,7 +39,7 @@ module tb_controller(output err);
         .waiting(waiting),
         .w_en1(w_en1),
         .w_en2(w_en2),
-        .w_en3(w_en3),
+        .w_en_ldr(w_en_ldr),
         .sel_w_data(sel_w_data),
         .sel_A_in(sel_A_in),
         .sel_B_in(sel_B_in),
@@ -302,7 +302,7 @@ module tb_controller(output err);
 
     task write_back_LDR(input integer startTestNum);
         clkR; // mem 2
-        check(1, w_en3, startTestNum);
+        check(1, w_en_ldr, startTestNum);
     endtask: write_back_LDR
 
     initial begin

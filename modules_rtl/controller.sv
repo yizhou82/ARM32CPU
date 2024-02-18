@@ -2,7 +2,7 @@ module controller(input clk, input rst_n,
                 input [6:0] opcode, input [31:0] status_reg, input [3:0] cond,
                 input P, input U, input W, input en_status_decode,
                 output waiting,                                                                                 //no use yet
-                output w_en1, output w_en2, output w_en3, output forward_w_data, output sel_w_addr1,                             //regfile
+                output w_en1, output w_en2, output w_en_ldr, output sel_load_LR,                            //regfile
                 output [1:0] sel_A_in, output [1:0] sel_B_in, output [1:0] sel_shift_in, output sel_shift,      //forwarding muxes
                 output en_A, output en_B, output en_C, output en_S,                                             //load regs stage
                 output sel_A, output sel_B, output sel_post_indexing, output [2:0] ALU_op,                         //execute stage
@@ -63,9 +63,8 @@ module controller(input clk, input rst_n,
     reg waiting_reg;
     reg w_en1_reg;
     reg w_en2_reg;
-    reg w_en3_reg;
-    reg forward_w_data_reg;
-    reg sel_w_addr1_reg;
+    reg w_en_ldr_reg;
+    reg sel_load_LR_reg;
     reg [1:0] sel_A_in_reg;
     reg [1:0] sel_B_in_reg;
     reg [1:0] sel_shift_in_reg;
@@ -90,9 +89,8 @@ module controller(input clk, input rst_n,
     assign waiting = waiting_reg;
     assign w_en1 = w_en1_reg;
     assign w_en2 = w_en2_reg;
-    assign w_en3 = w_en3_reg;
-    assign forward_w_data = forward_w_data_reg;
-    assign sel_w_addr1 = sel_w_addr1_reg;
+    assign w_en_ldr = w_en_ldr_reg;
+    assign sel_load_LR = sel_load_LR_reg;
     assign sel_A_in = sel_A_in_reg;
     assign sel_B_in = sel_B_in_reg;
     assign sel_shift_in = sel_shift_in_reg;
@@ -159,9 +157,8 @@ module controller(input clk, input rst_n,
         waiting_reg = 1'b0;
         w_en1_reg = 1'b0;
         w_en2_reg = 1'b0;
-        w_en3_reg = 1'b0;
-        forward_w_data_reg = 1'b0;
-        sel_w_addr1_reg = 1'b0;
+        w_en_ldr_reg = 1'b0;
+        sel_load_LR_reg = 1'b0;
         sel_A_in_reg = 2'b00;
         sel_B_in_reg = 2'b00;
         sel_shift_in_reg = 1'b0;
@@ -350,7 +347,7 @@ module controller(input clk, input rst_n,
                     sel_post_indexing_reg = 1'b0;
 
                     //sel_w_data
-                    forward_w_data_reg = 1'b0;
+                    sel_load_LR_reg = 1'b0;
 
                     //en_status -> since branching decoding doesnt this rule anymore
                     en_status_reg = en_status_decode;
@@ -399,7 +396,7 @@ module controller(input clk, input rst_n,
                     end
 
                     //sel_w_data -> default
-                    forward_w_data_reg = 1'b0;
+                    sel_load_LR_reg = 1'b0;
 
                     //en_status
                     en_status_reg = en_status_decode;
@@ -445,8 +442,7 @@ module controller(input clk, input rst_n,
                     if (opcode[2] == 1'b1) begin
                         //w_en1
                         w_en1_reg = 1'b1;
-                        forward_w_data_reg = 1'b0;
-                        sel_w_addr1_reg = 1'b1;
+                        sel_load_LR_reg = 1'b0;
                     end
 
                     //ALU_op
@@ -482,7 +478,7 @@ module controller(input clk, input rst_n,
                 */
                 if (opcode[6:4] == 3'b110 || opcode[6:3] == 4'b1000) begin
                     //w_en2
-                    w_en3_reg = 1'b1;
+                    w_en_ldr_reg = 1'b1;
                 end
             end
         endcase
